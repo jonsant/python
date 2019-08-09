@@ -23,7 +23,7 @@ while run:
 			name = input("Name? ")
 			print("\n")
 			for guest in guests:
-				if guest["name"] == name:
+				if name == guest["name"]:
 					guest["arrived"] = True
 					for key, info in guest.items():
 						if key == "arrived":
