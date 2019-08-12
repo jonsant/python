@@ -18,6 +18,7 @@ while run:
 	
 	#Arrived
 	elif choice == "2":
+		#List is not empty
 		if guests:
 			name = input("Name? ")
 			print("\n")
@@ -35,13 +36,14 @@ while run:
 						print(key + " : " + val)
 					
 			print("\n")
-				
+		#List is empty		
 		else:
 			print("Empty!\n")
 	#Quit
 	elif choice == "3":
 		print("Bye!")
 		run = False
+	#Invalid input
 	else:
 		print("?")
 
