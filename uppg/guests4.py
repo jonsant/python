@@ -22,8 +22,10 @@ while run:
 			name = input("Name? ")
 			print("\n")
 			
+			#Guest already arrived
 			if guests[name].get("arrived") == True:
 				print("Already here!")
+			#Guest not arrived yet
 			else:
 				guests[name]["arrived"] = True
 				for key, val in guests[name].items():
