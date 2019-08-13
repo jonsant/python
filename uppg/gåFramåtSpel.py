@@ -61,8 +61,12 @@ class Player():
 		
 	def buyHealth(self, coins):
 		coins = int(coins)
-		self.health += coins*10
-		print("Added " + str(coins*10) + " hp!")
+		if coins <= self.bag.get("Coins"):	
+			self.health += coins*10
+			self.bag["Coins"] -= coins
+			print("Added " + str(coins*10) + " hp!\nTotal hp: " + str(self.health))
+		else:
+			print("Not enough coins!")
 			
 Active=True
 
@@ -113,6 +117,7 @@ while Active:
 					#Player runs away from enemy
 					slumpnmr = random.randint(1,5)
 					if slumpnmr == 1:
+						print("Ran away!")
 						del enemies[-1]
 				
 				#New enemy is found		
@@ -159,13 +164,7 @@ while Active:
 					
 					coins = input("How many coins do you wanna use? (1 coin = 10 hp): ")
 					if coins != '':
-						
-						if int(coins) <= player.bag.get("Coins"):
-							player.buyHealth(coins)
-						if int(coins) > player.bag.get("Coins"):
-							print("Not enough coins!")
-						else:
-							continue
+						player.buyHealth(coins)
 				
 			elif choice == 9:
 				break
