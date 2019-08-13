@@ -1,4 +1,19 @@
-guests = []
+guests = [{
+	"name": "evert",
+	"food": "sill",
+	"allergies": "gluten",
+	"drink": "beer",
+	"other": "",
+	"arrived": False
+	},
+	{
+	"name": "ingvar",
+	"food": "makrill",
+	"allergies": "",
+	"drink": "beer",
+	"other": "",
+	"arrived": False
+	}]
 
 run = True
 
@@ -24,12 +39,15 @@ while run:
 			print("\n")
 			for guest in guests:
 				if name == guest["name"]:
-					guest["arrived"] = True
-					for key, info in guest.items():
-						if key == "arrived":
-							continue
-						print(key + " : " + info)
-					print("welcome!\n")
+					if guest["arrived"] == True:
+						print("Already arrived...\n")
+					else:	
+						guest["arrived"] = True
+						for key, info in guest.items():
+							if key == "arrived":
+								continue
+							print(key + " : " + info)
+						print("\nWelcome!\n")
 				
 		else:
 			print("Empty!\n")
