@@ -30,9 +30,10 @@ class Boss(Enemy):
 	
 	def __init__(self, health=200, power=40, isBoss=True):
 		super().__init__(health=200, power=40, isBoss=True)
+		self.coins = random.randint(3,7)
 		
 	def blockHit(self):
-		print("\nBoss blocked it!")
+		print("Boss blocked it!\n")
 			
 class Player():
 	def __init__(self, health):
@@ -57,13 +58,23 @@ class Player():
 	
 	def addCoins(self, coins):
 		self.bag["Coins"] += coins
+		
+	def buyHealth(self, coins):
+		coins = int(coins)
+		self.health += coins*10
+		print("Added " + str(coins*10) + " hp!")
 			
 Active=True
 
 while Active:
 	print("1. Play")
 	print("2. Quit")
-	mainChoice = int(input("Choose: "))
+	mainChoice = input("Choose: ")
+	if mainChoice != '':
+		mainChoice = int(mainChoice)
+	else:
+		continue
+	print()
 	
 	if mainChoice == 1:
 		
@@ -80,9 +91,17 @@ while Active:
 			print("3. Player info")
 			if enemies:
 				print("4. Show enemies")
-			print("5. Quit")
+			if player.bag.get("Coins") > 0:
+				print("5. Buy health")
+			print("9. Quit")
 				
-			choice = int(input("Choose: "))
+			choice = input("Choose: ")
+			if choice != '':
+				choice = int(choice)
+			else:
+				print()
+				continue
+			print()
 			if choice == 1:
 				if enemies:
 					
@@ -101,7 +120,7 @@ while Active:
 				if slumpnmr >= 7:
 					if random.randint(1,4) == 1:
 						print("Boss found!!")
-						enemies.append(Boss(isBoss=True))
+						enemies.append(Boss())
 					else:
 						print("Enemy found!")
 						enemies.append(Enemy(
@@ -133,10 +152,22 @@ while Active:
 				player.info()
 				
 			elif choice == 4:
-				print("\n")
 				for key,enemy in enumerate(enemies):
-					print(str(key+1) + ": " + str(enemy.health) + " hp")
+					print("Enemy " + str(key+1) + ": " + str(enemy.health) + " hp")
 			elif choice == 5:
+				if player.bag.get("Coins") > 0:
+					
+					coins = input("How many coins do you wanna use? (1 coin = 10 hp): ")
+					if coins != '':
+						
+						if int(coins) <= player.bag.get("Coins"):
+							player.buyHealth(coins)
+						if int(coins) > player.bag.get("Coins"):
+							print("Not enough coins!")
+						else:
+							continue
+				
+			elif choice == 9:
 				break
 						
 			print("\t")
