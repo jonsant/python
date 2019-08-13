@@ -1,10 +1,12 @@
 import random
 
 class Enemy():
-	def __init__(self, health, power):
+	def __init__(self, health, power, isBoss=False):
 		self.health = health
 		self.power = power
 		self.lives=True
+		self.coins = random.randint(1,2)
+		self.isBoss = isBoss
 
 	def info(self):
 		print("Enemy health: " + str(self.health))
@@ -17,27 +19,44 @@ class Enemy():
 		self.health-=10
 		if self.health <= 0:
 			self.lives=False
-			print("Enemy killed")
+			print("Enemy killed and dropped " + str(self.coins) + " coins!")
 		else:
-			print(str(self.health) + " hp left")
+			print("Enemy hp: " + str(self.health))
+			
+	def disappear(self):
+		print("Enemy disappeared!")
+		
+class Boss(Enemy):
+	
+	def __init__(self, health=200, power=40, isBoss=True):
+		super().__init__(health=200, power=40, isBoss=True)
+		
+	def blockHit(self):
+		print("\nBoss blocked it!")
 			
 class Player():
 	def __init__(self, health):
 		self.health = health
+		self.bag = {"Coins": 0}
 		self.lives=True
 		
 	def info(self):
-		print("Player: ")
-		print("Health: " + str(self.health))
+		print("\nPlayer:\nHealth - " + str(self.health))
+		for item, value in self.bag.items():
+			print(item + " - " + str(value))
 		
 	def takeahit(self, enemy):
 		self.health-=enemy.power
 		print("\nHit by enemy!")
 		if self.health <= 0:
 			self.lives=False
+			print("Out of hp!")
 			print("Game over")
 		else:
 			print("You have " + str(self.health) + " hp left!")
+	
+	def addCoins(self, coins):
+		self.bag["Coins"] += coins
 			
 Active=True
 
@@ -52,35 +71,62 @@ while Active:
 		player = Player(100)
 		
 		while player.lives:
-			print("1. Walk")
+			
 			if enemies:
+				print("1. Run")
 				print("2. Hit")
+			else:
+				print("1. Walk")
 			print("3. Player info")
 			if enemies:
 				print("4. Show enemies")
+			print("5. Quit")
 				
 			choice = int(input("Choose: "))
 			if choice == 1:
 				if enemies:
+					
+					#Enemy hits player
 					slumpnmr = random.randint(1,9)
 					if slumpnmr == 9:
 						player.takeahit(enemies[-1])
+					
+					#Player runs away from enemy
+					slumpnmr = random.randint(1,5)
+					if slumpnmr == 1:
+						del enemies[-1]
+				
+				#New enemy is found		
 				slumpnmr = random.randint(1,9)
 				if slumpnmr >= 7:
-					print("Enemy found!")
-					enemies.append(Enemy(
-						health=random.randint(1,100),
-						power=random.randint(10,40)))
-					
+					if random.randint(1,4) == 1:
+						print("Boss found!!")
+						enemies.append(Boss(isBoss=True))
+					else:
+						print("Enemy found!")
+						enemies.append(Enemy(
+							health=random.randint(1,100),
+							power=random.randint(10,20)))
+			
+			#Player hits enemy		
 			elif choice == 2 and enemies:
 				slumpnmr = random.randint(1,9)
+				#Enemy hits back at player
 				if slumpnmr == 9:
 					player.takeahit(enemies[-1])
 					if player.lives == False:
 						continue
+				#Player hits enemy, or enemy gets killed & removed
 				if enemies[-1].lives:
+					#If enemy is Boss, it sometimes blocks player
+					if enemies[-1].isBoss:
+						if random.randint(1,3) == 1:
+							enemies[-1].blockHit()
+							continue
+												
 					enemies[-1].takeahit()
 					if enemies[-1].lives == False:
+						player.addCoins(enemies[-1].coins)
 						del enemies[-1]
 						
 			elif choice == 3:
@@ -90,6 +136,8 @@ while Active:
 				print("\n")
 				for key,enemy in enumerate(enemies):
 					print(str(key+1) + ": " + str(enemy.health) + " hp")
+			elif choice == 5:
+				break
 						
 			print("\t")
 	if mainChoice == 2:
