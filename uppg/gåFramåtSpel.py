@@ -33,10 +33,11 @@ class Player():
 	def takeahit(self, enemy):
 		self.health-=enemy.power
 		print("\nHit by enemy!")
-		print("You have " + str(self.health) + " hp left!")
 		if self.health <= 0:
 			self.lives=False
 			print("Game over")
+		else:
+			print("You have " + str(self.health) + " hp left!")
 			
 Active=True
 
