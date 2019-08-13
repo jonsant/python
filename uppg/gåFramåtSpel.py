@@ -1,27 +1,25 @@
 import random
 
 class Enemy():
-	def __init__(self, health):
+	def __init__(self, health, power):
 		self.health = health
+		self.power = power
 		self.lives=True
 
 	def info(self):
-		print("Information for object:")
-		print("Name: " + self.name)
-		print("Foods: " + self.food)
-		print("Allergies: " + self.allergies)
-		print("Other: " + self.other)
+		print("Enemy health: " + str(self.health))
 		if self.lives == True:
 			print("Alive: Yes")
 		else:
 			print("Alive: No")
 	def takeahit(self):
 		print("Enemy" + " got hit for 10 hp")
-		print(str(self.health) + " hp left")
 		self.health-=10
 		if self.health <= 0:
 			self.lives=False
 			print("Enemy killed")
+		else:
+			print(str(self.health) + " hp left")
 			
 class Player():
 	def __init__(self, health):
@@ -32,9 +30,10 @@ class Player():
 		print("Player: ")
 		print("Health: " + str(self.health))
 		
-	def takeahit(self):
+	def takeahit(self, enemy):
+		self.health-=enemy.power
 		print("\nHit by enemy!")
-		self.health-=10
+		print("You have " + str(self.health) + " hp left!")
 		if self.health <= 0:
 			self.lives=False
 			print("Game over")
@@ -44,9 +43,9 @@ Active=True
 while Active:
 	print("1. Play")
 	print("2. Quit")
-	choice = int(input("Choose: "))
+	mainChoice = int(input("Choose: "))
 	
-	if choice == 1:
+	if mainChoice == 1:
 		
 		enemies=[]
 		player = Player(100)
@@ -56,27 +55,43 @@ while Active:
 			if enemies:
 				print("2. Hit")
 			print("3. Player info")
+			if enemies:
+				print("4. Show enemies")
 				
 			choice = int(input("Choose: "))
 			if choice == 1:
+				if enemies:
+					slumpnmr = random.randint(1,9)
+					if slumpnmr == 9:
+						player.takeahit(enemies[-1])
 				slumpnmr = random.randint(1,9)
 				if slumpnmr >= 7:
 					print("Enemy found!")
-					enemies.append(Enemy(random.randint(1,100)))
+					enemies.append(Enemy(
+						health=random.randint(1,100),
+						power=random.randint(10,40)))
 					
 			elif choice == 2 and enemies:
 				slumpnmr = random.randint(1,9)
 				if slumpnmr == 9:
-					player.takeahit()
+					player.takeahit(enemies[-1])
 					if player.lives == False:
-						break
+						continue
 				if enemies[-1].lives:
 					enemies[-1].takeahit()
 					if enemies[-1].lives == False:
 						del enemies[-1]
 						
 			elif choice == 3:
-				player.info()		
+				player.info()
+				
+			elif choice == 4:
+				print("\n")
+				for key,enemy in enumerate(enemies):
+					print(str(key+1) + ": " + str(enemy.health) + " hp")
+						
 			print("\t")
-	if choice == 2:
+	if mainChoice == 2:
+		print("Bye!")
 		Active = False
+	print("\n")
