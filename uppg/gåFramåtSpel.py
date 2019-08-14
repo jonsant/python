@@ -28,7 +28,7 @@ class Enemy():
 		
 class Boss(Enemy):
 	
-	def __init__(self, health=200, power=40, isBoss=True):
+	def __init__(self, health=200, power=40):
 		super().__init__(health=200, power=40, isBoss=True)
 		self.coins = random.randint(3,7)
 		
