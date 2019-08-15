@@ -5,18 +5,22 @@ import pygame
 from ship import Ship
 
 def run_game():
-
     pygame.joystick.init()
-    joystick = pygame.joystick.Joystick(0)
-    joystick.init()
-    print(joystick.get_name())
-    print(joystick.get_numaxes())
-    print(joystick.get_numbuttons())
+    try:
+        joystick = pygame.joystick.Joystick(0)
+        joystick.init()
+        print(joystick.get_name())
+        print(joystick.get_numaxes())
+        print(joystick.get_numbuttons())
+    except:
+        print("Joystick error")
 
     # Initialize game and create a screen object.
     pygame.init()
     screen = pygame.display.set_mode((1200, 800))
     pygame.display.set_caption("NES")
+
+    t = pygame.time.Clock()
 
     # Make a ship.
     ship = Ship(screen)
@@ -42,7 +46,7 @@ def run_game():
             #         ship.moving_right = False
             elif event.type == pygame.JOYAXISMOTION:
                 print(event)
-                if event.axis == 0:
+                if event.axis == 0 or event.axis == 3:
                     val = round(event.value)
                     print(val)
                     if val == 1:
@@ -68,6 +72,7 @@ def run_game():
         screen.fill(bg_color)
         ship.blitme()
 
+        t.tick()
         # Make the most recently drawn screen visible.
         pygame.display.flip()
         pygame.event.pump()
