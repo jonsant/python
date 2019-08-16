@@ -72,9 +72,9 @@ def run_game():
         screen.fill(bg_color)
         ship.blitme()
 
-        t.tick()
+        #t.tick()
         # Make the most recently drawn screen visible.
         pygame.display.flip()
-        pygame.event.pump()
+        #pygame.event.pump()
 
 run_game()
