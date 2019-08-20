@@ -35,6 +35,8 @@ class Scoreboard():
 		self.high_score_rect.centerx = self.screen_rect.centerx
 		self.high_score_rect.top = self.score_rect.top
 		
+	
+		
 	def prep_score(self):
 		"""Turn the score into a rendered image."""
 		rounded_score = int(round(self.stats.score, -1))
