@@ -7,7 +7,7 @@ class GameStats():
 		self.reset_stats()
 		
 		# High score should never be reset.
-		self.hight_score = 0
+		self.high_score = 0
 		
 		# Start Invasion in an inactive state.
 		self.game_active = False

@@ -23,7 +23,7 @@ class Scoreboard():
 		high_score = int(round(self.stats.high_score, -1))
 		high_score_str = "{:,}".format(high_score)
 		self.high_score_image = self.font.render(high_score_str, True,
-			self.text_color, self.my_settings.bg_colo)
+			self.text_color, self.my_settings.bg_color)
 			
 		# Center the high score at the top of the screen.
 		self.high_score_rect = self.high_score_image.get_rect()

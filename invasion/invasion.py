@@ -8,7 +8,7 @@ from ship import Ship
 import game_functions as gf
 
 def run_game():
-	# Initialize game, soettings and screen object.
+	# Initialize game, settings and screen object.
 	pygame.init()
 	
 	my_settings = Settings()
