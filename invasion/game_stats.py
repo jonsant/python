@@ -8,9 +8,18 @@ class GameStats():
 		
 		# High score should never be reset.
 		self.high_score = 0
+		self.load_highscore()
 		
 		# Start Invasion in an inactive state.
 		self.game_active = False
+		
+	def load_highscore(self):
+		try:
+			with open("hs.inv", "r") as hs_file:
+				hs = hs_file.read()
+				self.high_score = int(hs)
+		except FileNotFoundError:
+			print("not found")
 		
 	def reset_stats(self):
 		"""Initialize statistics that can change during the game."""

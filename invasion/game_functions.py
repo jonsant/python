@@ -33,6 +33,7 @@ def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bull
 	"""Respond to keypresses and mouse events."""
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
+			save_highscore(stats)
 			sys.exit()
 			
 		elif event.type == pygame.KEYDOWN:
@@ -45,6 +46,13 @@ def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bull
 			mouse_x, mouse_y = pygame.mouse.get_pos()
 			check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 				bullets, mouse_x, mouse_y)
+				
+def save_highscore(stats):
+	try:
+		with open("hs.inv", "w") as hs_file:
+			hs_file.write(str(round(stats.high_score, -1)))
+	except FileNotFoundError:
+		print("not found")		
 			
 def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 	bullets, mouse_x, mouse_y):
