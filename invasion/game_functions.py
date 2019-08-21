@@ -2,9 +2,11 @@ import sys
 from time import sleep
 import pygame
 from bullet import Bullet
+from vBullet import VBullet
 from alien import Alien
+from pygame import mixer
 
-def check_keydown_events(event, my_settings, screen, ship, bullets):
+def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets):
 	"""Respond to keypresses."""
 	if event.key == pygame.K_RIGHT:
 		ship.moving_right = True
@@ -12,6 +14,8 @@ def check_keydown_events(event, my_settings, screen, ship, bullets):
 		ship.moving_left = True
 	elif event.key == pygame.K_SPACE:
 		fire_bullet(my_settings, screen, ship, bullets)
+	elif event.key == pygame.K_v:
+		fire_vBullet(my_settings, screen, ship, vBullets)
 	elif event.key == pygame.K_q:
 		sys.exit()
 
@@ -20,7 +24,18 @@ def fire_bullet(my_settings, screen, ship, bullets):
 	# Create a new bullet and add it to the bullets group.
 	if len(bullets) < my_settings.bullets_allowed:
 		new_bullet = Bullet(my_settings, screen, ship)
+		bullet_snd = pygame.mixer.Sound("sound/bullet.wav")
+		bullet_snd.play()
 		bullets.add(new_bullet)
+		
+def fire_vBullet(my_settings, screen, ship, vBullets):
+	"""Fire a vBullet if limit not reached you."""
+	# Create a new bullet and add it to the bullets group.
+	if len(vBullets) < my_settings.vBullets_allowed:
+		new_bullet = VBullet(my_settings, screen, ship)
+		bullet_snd = pygame.mixer.Sound("sound/bullet.wav")
+		bullet_snd.play()
+		vBullets.add(new_bullet)
 		
 def check_keyup_events(event, ship):
 	"""Respond to keypresses."""
@@ -29,7 +44,7 @@ def check_keyup_events(event, ship):
 	elif event.key == pygame.K_LEFT:
 		ship.moving_left = False
 
-def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bullets):
+def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bullets, vBullets):
 	"""Respond to keypresses and mouse events."""
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -37,7 +52,7 @@ def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bull
 			sys.exit()
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, my_settings, screen, ship, bullets)
+			check_keydown_events(event, my_settings, screen, ship, bullets, vBullets)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, ship)
@@ -83,7 +98,7 @@ def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 		create_fleet(my_settings, screen, ship, aliens)
 		ship.center_ship()
 
-def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, play_button):
+def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets, play_button):
 	"""Update images on the screen and flip to the new screen."""
 	# Redraw the screen during each pass through the loop
 	screen.fill(my_settings.bg_color)
@@ -91,6 +106,9 @@ def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, play_but
 	# Redraw all bullets behind ship and aliens.
 	for bullet in bullets.sprites():
 		bullet.draw_bullet()
+	
+	for vBullet in vBullets.sprites():
+		vBullet.draw_bullet()
 	
 	ship.blitme()
 	alien.draw(screen)
@@ -105,39 +123,50 @@ def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, play_but
 	# Make the most recently drawn screen visible
 	pygame.display.flip()
 	
-def update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets):
+def update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets):
 	"""Update position of bullets and get rid of old bullets."""
 	# Update bullet positions.
 	bullets.update()
+	vBullets.update()
 	
 	# Get rid of bullets that have disappeared.
 	for bullet in bullets.copy():
 		if bullet.rect.bottom <= 0:
 			bullets.remove(bullet)
 			
-	check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets)
+	# Get rid of vBullets that have dissapeared.
+	for vBullet in vBullets.copy():
+		if vBullet.rect.bottom <= 0:
+			vBullets.remove(vBullet)
+			
+	check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets)
 		
-def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets):
+def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets):
 	"""Respond to bullet-alien collisions."""
 	# Remove any bullets and aliens that have collided.
-	collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+	bulls = [bullets, vBullets]
 	
-	if collisions:
-		for aliens in collisions.values():
-			stats.score += my_settings.alien_points * len(aliens)
-			sb.prep_score()
-		check_high_score(stats, sb)
-	
-	if len(aliens) == 0:
-		# If the entire fleet is destroyed, start a new level.
-		bullets.empty()
-		my_settings.increase_speed()
+	for bulletType in bulls:
+		collisions = pygame.sprite.groupcollide(bulletType, aliens, True, True)
 		
-		# Increase level.
-		stats.level += 1
-		sb.prep_level()
+		if collisions:
+			explode_snd = pygame.mixer.Sound("sound/explode.wav")
+			explode_snd.play()
+			for aliens in collisions.values():
+				stats.score += my_settings.alien_points * len(aliens)
+				sb.prep_score()
+			check_high_score(stats, sb)
 		
-		create_fleet(my_settings, screen, ship, aliens)
+		if len(aliens) == 0:
+			# If the entire fleet is destroyed, start a new level.
+			bulletType.empty()
+			my_settings.increase_speed()
+			
+			# Increase level.
+			stats.level += 1
+			sb.prep_level()
+			
+			create_fleet(my_settings, screen, ship, aliens)
 
 def get_number_aliens_x(my_settings, alien_width):
 	"""Determine the number of aliens that fit in a row."""
@@ -219,7 +248,7 @@ def check_aliens_bottom(my_settings, stats, screen, sb, ship, aliens, bullets):
 			ship_hit(my_settings, stats, screen, sb, ship, aliens, bullets)
 			break
 
-def update_aliens(my_settings, stats, screen, sb, ship, aliens, bullets):
+def update_aliens(my_settings, stats, screen, sb, ship, aliens, bullets, vBullets):
 	"""Check if the fleet is at an edge,
 		and then update the positions of all aliens in the fleet.
 	"""
