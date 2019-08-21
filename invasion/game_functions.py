@@ -5,8 +5,9 @@ from bullet import Bullet
 from vBullet import VBullet
 from alien import Alien
 from pygame import mixer
+from explosion import ExplosionSprite
 
-def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets):
+def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, stats, sb):
 	"""Respond to keypresses."""
 	if event.key == pygame.K_RIGHT:
 		ship.moving_right = True
@@ -15,7 +16,14 @@ def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets):
 	elif event.key == pygame.K_SPACE:
 		fire_bullet(my_settings, screen, ship, bullets)
 	elif event.key == pygame.K_v:
-		fire_vBullet(my_settings, screen, ship, vBullets)
+		if stats.vBullets_before_ship_lost > 0:
+			stats.vBullets_before_ship_lost -= 1
+			sb.prep_vBullets_left()
+			fire_vBullet(my_settings, screen, ship, vBullets)
+		else:
+			stats.ships_left -= 1
+			sb.prep_ships()
+			fire_vBullet(my_settings, screen, ship, vBullets)
 	elif event.key == pygame.K_q:
 		sys.exit()
 
@@ -23,9 +31,9 @@ def fire_bullet(my_settings, screen, ship, bullets):
 	"""Fire a bullet if limit not reached you."""
 	# Create a new bullet and add it to the bullets group.
 	if len(bullets) < my_settings.bullets_allowed:
-		new_bullet = Bullet(my_settings, screen, ship)
 		bullet_snd = pygame.mixer.Sound("sound/bullet.wav")
 		bullet_snd.play()
+		new_bullet = Bullet(my_settings, screen, ship)
 		bullets.add(new_bullet)
 		
 def fire_vBullet(my_settings, screen, ship, vBullets):
@@ -52,7 +60,7 @@ def check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bull
 			sys.exit()
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, my_settings, screen, ship, bullets, vBullets)
+			check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, stats, sb)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, ship)
@@ -89,6 +97,7 @@ def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 		sb.prep_high_score()
 		sb.prep_level()
 		sb.prep_ships()
+		sb.prep_vBullets_left()
 		
 		# Empty the list of aliens and bullets.
 		aliens.empty()
@@ -98,7 +107,7 @@ def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 		create_fleet(my_settings, screen, ship, aliens)
 		ship.center_ship()
 
-def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets, play_button):
+def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets, play_button, explos):
 	"""Update images on the screen and flip to the new screen."""
 	# Redraw the screen during each pass through the loop
 	screen.fill(my_settings.bg_color)
@@ -119,11 +128,15 @@ def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets
 	# Draw the play button if the game is inactive.
 	if not stats.game_active:
 		play_button.draw_button()
-			
+	
+	#exp_group.draw(screen)
+	for expl in explos.sprites():
+		expl.update() #----------------- Ska vara draw egentligen? Hur rita?
+	
 	# Make the most recently drawn screen visible
 	pygame.display.flip()
 	
-def update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets):
+def update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, explos):
 	"""Update position of bullets and get rid of old bullets."""
 	# Update bullet positions.
 	bullets.update()
@@ -139,34 +152,53 @@ def update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBulle
 		if vBullet.rect.bottom <= 0:
 			vBullets.remove(vBullet)
 			
-	check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets)
+	check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, explos)
 		
-def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets):
+def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, explos):
 	"""Respond to bullet-alien collisions."""
 	# Remove any bullets and aliens that have collided.
 	bulls = [bullets, vBullets]
 	
-	for bulletType in bulls:
-		collisions = pygame.sprite.groupcollide(bulletType, aliens, True, True)
+	s = pygame.sprite.groupcollide(bullets, aliens, False, False)
+	for c, d in s.items():
+		print(c.rect.x)
+		print(c.rect.y)
+		newExplo = ExplosionSprite(screen, c.rect)
+		explos.add(newExplo)
+	
+	bulletCollisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+	
+	if bulletCollisions:
 		
-		if collisions:
-			explode_snd = pygame.mixer.Sound("sound/explode.wav")
-			explode_snd.play()
-			for aliens in collisions.values():
-				stats.score += my_settings.alien_points * len(aliens)
-				sb.prep_score()
-			check_high_score(stats, sb)
+		explode_snd = pygame.mixer.Sound("sound/explode.wav")
+		explode_snd.play()
+		for aliens in bulletCollisions.values():
+			stats.score += my_settings.alien_points * len(aliens)
+			sb.prep_score()
+		check_high_score(stats, sb)
 		
-		if len(aliens) == 0:
-			# If the entire fleet is destroyed, start a new level.
-			bulletType.empty()
-			my_settings.increase_speed()
-			
-			# Increase level.
-			stats.level += 1
-			sb.prep_level()
-			
-			create_fleet(my_settings, screen, ship, aliens)
+	vBulletCollisions = pygame.sprite.groupcollide(vBullets, aliens, True, True)
+		
+	if vBulletCollisions:
+		#exp_group.update()
+		#exp_group.draw(screen)
+		explode_snd = pygame.mixer.Sound("sound/explode.wav")
+		explode_snd.play()
+		for aliens in vBulletCollisions.values():
+			stats.score += my_settings.alien_points * len(aliens)
+			sb.prep_score()
+		check_high_score(stats, sb)
+	
+	if len(aliens) == 0:
+		# If the entire fleet is destroyed, start a new level.
+		vBullets.empty()
+		my_settings.increase_speed()
+		
+		# Increase level.
+		stats.level += 1
+		sb.prep_level()
+		
+		create_fleet(my_settings, screen, ship, aliens)
 
 def get_number_aliens_x(my_settings, alien_width):
 	"""Determine the number of aliens that fit in a row."""

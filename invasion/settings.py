@@ -18,7 +18,7 @@ class Settings():
 		self.bullets_allowed = 3
 		
 		# vBullet settings
-		self.vBullet_width = 250
+		self.vBullet_width = 150
 		self.vBullet_height = 15
 		self.vBullet_color = 255,0,0
 		self.vBullets_allowed = 1
@@ -38,13 +38,14 @@ class Settings():
 		self.ship_speed_factor = 1.5
 		self.bullet_speed_factor = 3
 		self.vBullet_speed_factor = 5
-		self.alien_speed_factor = 3
+		self.alien_speed_factor = 2
 		
 		# fleet_direction of 1 represents right; -1 represents left.
 		self.fleet_direction = 1
 		
 		# Scoring
 		self.alien_points = 50
+		
 		
 	def increase_speed(self):
 		"""Increase speed settings and alien point values."""

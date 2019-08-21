@@ -22,6 +22,7 @@ class Scoreboard():
 		self.prep_high_score()
 		self.prep_level()
 		self.prep_ships()
+		self.prep_vBullets_left()
 		
 	def prep_high_score(self):
 		"""Turn the high score into a rendered image."""
@@ -72,5 +73,17 @@ class Scoreboard():
 		self.screen.blit(self.score_image, self.score_rect)
 		self.screen.blit(self.high_score_image, self.high_score_rect)
 		self.screen.blit(self.level_image, self.level_rect)
+		self.screen.blit(self.vBullets_image, self.vBullets_rect)
 		# Draw ships.
 		self.ships.draw(self.screen)
+		
+	def prep_vBullets_left(self):
+		"""Show how many vBullets are left before ships will be removed."""
+		self.vBullets_image = self.font.render(str(self.stats.vBullets_before_ship_lost), True, self.text_color,
+			self.my_settings.bg_color)
+		
+		# Position the number of vBullets below the level.
+		self.vBullets_rect = self.vBullets_image.get_rect()
+		self.vBullets_rect.right = self.score_rect.right
+		self.vBullets_rect.top = self.score_rect.bottom + 50
+		
