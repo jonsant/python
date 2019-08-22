@@ -26,4 +26,4 @@ class GameStats():
 		self.ships_left = self.my_settings.ship_limit
 		self.score = 0
 		self.level = 1
-		self.vBullets_before_ship_lost = 5
+		self.vBullets_before_ship_lost = 100
