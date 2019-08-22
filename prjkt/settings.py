@@ -10,4 +10,4 @@ class Settings():
 		
 		self.bg = pygame.image.load("images/bg.jpg")
 		
-		self.player_speed = 5
+		self.player_speed = 1

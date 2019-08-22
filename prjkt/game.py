@@ -14,8 +14,12 @@ def game():
 	
 	player1 = Player(settings, screen, 1)
 	player2 = Player(settings, screen, 2)
+	
+	clock = pygame.time.Clock()
 
 	while True:
+		clock.tick(30)
+		
 		funcs.check_events(settings, screen, player1, player2)
 		
 		player1.update()
