@@ -12,15 +12,17 @@ def game():
 	screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
 	pygame.display.set_caption("Game")
 	
-	player1 = Player(settings, screen)
+	player1 = Player(settings, screen, 1)
+	player2 = Player(settings, screen, 2)
 
 	while True:
-		funcs.check_events()
+		funcs.check_events(settings, screen, player1, player2)
 		
 		player1.update()
+		player2.update()
 		
 		# ---
 		
-		funcs.update(screen, settings, player1)
+		funcs.update(screen, settings, player1, player2)
 
 game()
