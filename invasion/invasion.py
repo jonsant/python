@@ -8,10 +8,13 @@ from ship import Ship
 import game_functions as gf
 from explosion import ExplosionSprite
 
+FPS = 60
+clock = pygame.time.Clock()
+
 def run_game():
 	
 	# Initialize game, settings and screen object.
-	pygame.init()
+	pygame.init() 
 	
 	my_settings = Settings()
 	
@@ -22,7 +25,7 @@ def run_game():
 	#exp_sprite = ExplosionSprite()
 	#exp_group = Group(exp_sprite)
 	
-	explos = Group()
+	explos = []
 	
 	# Make the Play button.
 	play_button = Button(my_settings, screen, "Play")
@@ -43,11 +46,15 @@ def run_game():
 	# Start the main loop for the game
 	while True:
 		
+		#dt = clock.tick(FPS) / 1000 # Amount of seconds between each loop.
+		
 		gf.check_events(my_settings, screen, stats, sb, play_button, ship, aliens, bullets, vBullets)
 		if stats.game_active:
 			ship.update()
 			gf.update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, explos)
 			gf.update_aliens(my_settings, stats, screen, sb, ship, aliens, bullets, vBullets)
+			#gf.update_explos(explos, dt)
+			gf.update_explos(explos)
 			
 		gf.update_screen(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, play_button, explos)
 		

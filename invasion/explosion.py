@@ -21,10 +21,24 @@ class ExplosionSprite(Sprite):
 		
 		self.index = 0
 		self.image = self.images[self.index]
-		self.rect = pygame.Rect(5, 5, 60, 60)
+		self.rect = pygame.Rect(pos.centerx - 60, pos.y - 60, 5, 5)
+		self.animation_time = 0.1
+		self.current_time = 0
+		self.animation_frames = 8
+		self.current_frame = 0
 		
 	def update(self):
-		self.index += 1
-		if self.index >= len(self.images):
-			self.index = 0
-		self.image = self.images[self.index]
+		
+		#self.current_time += dt
+		#if self.current_time >= self.animation_time:
+		#	self.index += 1
+		#	if self.index >= len(self.images):
+		#		self.index = 0
+		#	self.image = self.images[self.index]
+		
+		self.current_frame += 1
+		if self.current_frame >= self.animation_frames:
+			self.current_frame = 0
+			self.index = (self.index + 1) % len(self.images)
+			self.image = self.images[self.index]
+	

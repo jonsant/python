@@ -6,6 +6,7 @@ from vBullet import VBullet
 from alien import Alien
 from pygame import mixer
 from explosion import ExplosionSprite
+from pygame.sprite import Group
 
 def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, stats, sb):
 	"""Respond to keypresses."""
@@ -107,6 +108,14 @@ def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 		create_fleet(my_settings, screen, ship, aliens)
 		ship.center_ship()
 
+def update_explos(explos):
+	if explos:
+		for idx, exp in enumerate(explos[:]):
+			for ex in exp:
+				if ex.index >= 8:
+					del explos[idx]
+			exp.update()
+
 def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets, play_button, explos):
 	"""Update images on the screen and flip to the new screen."""
 	# Redraw the screen during each pass through the loop
@@ -130,8 +139,11 @@ def update_screen(my_settings, screen, stats, sb, ship, alien, bullets, vBullets
 		play_button.draw_button()
 	
 	#exp_group.draw(screen)
-	for expl in explos.sprites():
-		expl.update() #----------------- Ska vara draw egentligen? Hur rita?
+	#for expl in explos.sprites():
+		#expl.update()
+		
+	for exp in explos:
+		exp.draw(screen)
 	
 	# Make the most recently drawn screen visible
 	pygame.display.flip()
@@ -159,12 +171,21 @@ def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, 
 	# Remove any bullets and aliens that have collided.
 	bulls = [bullets, vBullets]
 	
-	s = pygame.sprite.groupcollide(bullets, aliens, False, False)
-	for c, d in s.items():
+	b = pygame.sprite.groupcollide(bullets, aliens, False, False)
+	for c, d in b.items():
 		print(c.rect.x)
 		print(c.rect.y)
 		newExplo = ExplosionSprite(screen, c.rect)
-		explos.add(newExplo)
+		expl = Group(newExplo)
+		explos.append(expl)
+		
+	v = pygame.sprite.groupcollide(vBullets, aliens, False, False)
+	for c, d in v.items():
+		print(c.rect.x)
+		print(c.rect.y)
+		newExplo = ExplosionSprite(screen, c.rect)
+		expl = Group(newExplo)
+		explos.append(expl)
 	
 	bulletCollisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
 	
