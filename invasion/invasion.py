@@ -35,6 +35,8 @@ def run_game():
 	# Create the fleet of aliens.
 	gf.create_fleet(my_settings, screen, ship, aliens)
 	
+	
+	
 	# Start the main loop for the game
 	while True:
 		
@@ -45,7 +47,9 @@ def run_game():
 			gf.update_bullets(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, explos)
 			gf.update_aliens(my_settings, stats, screen, sb, ship, aliens, bullets, vBullets)
 			gf.update_explos(explos)
-			
+		
+		else:
+			pygame.mixer.music.stop()	
 		gf.update_screen(my_settings, screen, stats, sb, ship, aliens, bullets, vBullets, play_button, explos)
 		
 		

@@ -84,6 +84,8 @@ def check_play_button(my_settings, screen, stats, sb, play_button, ship, aliens,
 	"""Start a new game when the player clicks Play."""
 	button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
 	if button_clicked and not stats.game_active:
+		pygame.mixer.music.load('sound/msc.mp3')
+		pygame.mixer.music.play(-1)
 		#Reset the game settings.
 		my_settings.initialize_dynamic_settings()
 		
