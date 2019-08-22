@@ -10,4 +10,13 @@ class Settings():
 		
 		self.bg = pygame.image.load("images/bg.jpg")
 		
+		# Player settings
+		
+			# Both
 		self.player_speed = 5
+		
+			# Player1
+		self.player1_start_pos = pygame.Rect(300, 300,97,72)
+		
+			# Player2
+		self.player2_start_pos = pygame.Rect(800, 300, 97,72)
