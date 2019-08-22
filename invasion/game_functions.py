@@ -26,6 +26,7 @@ def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, st
 			sb.prep_ships()
 			fire_vBullet(my_settings, screen, ship, vBullets)
 	elif event.key == pygame.K_q:
+		save_highscore(stats)
 		sys.exit()
 
 def fire_bullet(my_settings, screen, ship, bullets):
