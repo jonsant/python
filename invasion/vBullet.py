@@ -11,8 +11,14 @@ class VBullet(Bullet, Sprite):
 		self.screen = screen
 		
 		# Create a bullet rect at (0,0) and then set correct position.
-		self.rect = pygame.Rect(0,0, my_settings.vBullet_width,
-			my_settings.vBullet_height)
+		#self.rect = pygame.Rect(0,0, my_settings.vBullet_width,
+		#	my_settings.vBullet_height)
+		#self.rect.centerx = ship.rect.centerx
+		#self.rect.top = ship.rect.top
+		
+		# Load the bullet image and get its rect.
+		self.image = pygame.image.load("images/svbullet.png")
+		self.rect = self.image.get_rect()
 		self.rect.centerx = ship.rect.centerx
 		self.rect.top = ship.rect.top
 		

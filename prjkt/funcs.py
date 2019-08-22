@@ -20,9 +20,10 @@ def check_keydown_events():
 def check_keyup_events():
 	print("ll")
 	
-def update(screen, settings):
+def update(screen, settings, player1):
 	screen.blit(settings.bg,(0,0))
 	
-	# ----
+	
+	player1.blitme()
 	
 	pygame.display.flip()

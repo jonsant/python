@@ -10,6 +10,7 @@ from pygame.sprite import Group
 
 def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, stats, sb):
 	"""Respond to keypresses."""
+	mods = pygame.key.get_mods()
 	if event.key == pygame.K_RIGHT:
 		ship.moving_right = True
 	elif event.key == pygame.K_LEFT:
@@ -25,6 +26,11 @@ def check_keydown_events(event, my_settings, screen, ship, bullets, vBullets, st
 			stats.ships_left -= 1
 			sb.prep_ships()
 			fire_vBullet(my_settings, screen, ship, vBullets)
+	elif event.key == pygame.K_g:
+		if mods & pygame.KMOD_LSHIFT or mods & pygame.KMOD_RSHIFT:
+			stats.vBullets_before_ship_lost += 1000
+			sb.prep_vBullets_left()
+			my_settings.god_mode = True
 	elif event.key == pygame.K_q:
 		save_highscore(stats)
 		sys.exit()
@@ -201,7 +207,7 @@ def check_bullet_alien_collisions(my_settings, screen, stats, sb, ship, aliens, 
 				sb.prep_score()
 			check_high_score(stats, sb)
 			
-		vBulletCollisions = pygame.sprite.groupcollide(vBullets, aliens, True, True)
+		vBulletCollisions = pygame.sprite.groupcollide(vBullets, aliens, not my_settings.god_mode, True)
 			
 		if vBulletCollisions:
 			#exp_group.update()

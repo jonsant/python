@@ -32,7 +32,7 @@ def run_game():
 	vBullets = Group()
 	aliens = Group()
 	
-	# Create the fleet of aliens.
+	# Create the fleet of aliens.#000000
 	gf.create_fleet(my_settings, screen, ship, aliens)
 	
 	

@@ -31,6 +31,9 @@ class Settings():
 		# How quickly the alien point values increase
 		self.score_scale = 1.5
 		
+		# God mode
+		self.god_mode = False
+		
 		self.initialize_dynamic_settings()
 		
 	def initialize_dynamic_settings(self):
