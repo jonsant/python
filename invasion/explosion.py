@@ -19,9 +19,10 @@ class ExplosionSprite(Sprite):
 		self.images.append(load_image('images/regularExplosion07.png'))
 		self.images.append(load_image('images/regularExplosion08.png'))
 		
+		
 		self.index = 0
 		self.image = self.images[self.index]
-		self.rect = pygame.Rect(pos.centerx - 60, pos.y - 60, 192, 192)
+		self.rect = pygame.Rect(pos.centerx - 96, pos.centery - 96, 192, 192)
 		self.animation_time = 0.1
 		self.current_time = 0
 		self.animation_frames = 10
