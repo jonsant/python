@@ -18,7 +18,7 @@ def game():
 	clock = pygame.time.Clock()
 
 	while True:
-		clock.tick(30)
+		clock.tick(60)
 		
 		funcs.check_events(settings, screen, player1, player2)
 		

@@ -30,24 +30,24 @@ class Player(Sprite):
 		self.centerx = float(self.rect.centerx)
 		self.centery = float(self.rect.centery)
 		
-	def update(self, dt=1):
+	def update(self):
 		
 		if self.moving_left:
 			self.image = pygame.image.load("images/tank%d_left.png" % self.player_num)
 			if self.rect.left > self.screen_rect.left:
-				self.centerx -= self.settings.player_speed * dt
+				self.centerx -= self.settings.player_speed
 		if self.moving_right:
 			self.image = pygame.image.load("images/tank1_right.png")
 			if self.rect.right < self.screen_rect.right:
-				self.centerx += self.settings.player_speed * dt
+				self.centerx += self.settings.player_speed
 		if self.moving_up:
 			self.image = pygame.image.load("images/tank1_up.png")
 			if self.rect.top > self.screen_rect.top:
-				self.centery -= self.settings.player_speed * dt
+				self.centery -= self.settings.player_speed
 		if self.moving_down:
 			self.image = pygame.image.load("images/tank1_down.png")
 			if self.rect.bottom < self.screen_rect.bottom:
-				self.centery += self.settings.player_speed * dt
+				self.centery += self.settings.player_speed
 		
 		self.rect.centerx = self.centerx
 		self.rect.centery = self.centery
