@@ -32,3 +32,11 @@ class Settings():
 		
 			# Player2
 		self.player2_start_pos = pygame.Rect(800, 300, 97,72)
+		
+		self.joystick_xaxis = None
+		self.joystick_yaxis = None
+		self.joystick_select = None
+		self.joystick_start = None
+		self.joystick_b = None
+		self.joystick_a = None
+		self.buttons_left = 6

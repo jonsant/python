@@ -20,11 +20,15 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			check_menu_button(mouse_x, mouse_y, menu_buttons, stats)
 		elif event.type == pygame.JOYAXISMOTION:
 			if stats.in_settings:
-				pass
+				if settings.buttons_left == 6:
+					settings.joystick_xaxis = event.axis
+					settings.buttons_left = 5
+				elif settings.buttons_left == 5:
+					settings.joystick_yaxis = event.axis
+					settings.buttons_left = 4
 			else:
 				val = round(event.value)
-				if event.axis == 0:
-					
+				if event.axis == settings.joystick_xaxis:
 					if val == 1:
 						players[1].moving_right = True
 						players[1].direction = "right"
@@ -50,7 +54,24 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 						players[1].moving_up = True
 						players[1].direction = "up"
 		elif event.type == pygame.JOYBUTTONDOWN:
-			print(event.button)
+			if stats.in_settings:
+				if settings.buttons_left == 4:
+					settings.joystick_select = event.button
+					settings.buttons_left = 3
+				elif settings.buttons_left == 3:
+					settings.joystick_start = event.button
+					settings.buttons_left = 2
+				elif settings.buttons_left == 2:
+					settings.joystick_b = event.button
+					settings.buttons_left = 1
+				elif settings.buttons_left == 1:
+					settings.joystick_a = event.button
+					settings.buttons_left = 0
+				elif settings.buttons_left == 0:
+					stats.in_settings = False
+			else:
+				if event.button == settings.joystick_a:
+					new_bullet(bullets[1], settings, screen, players[1])
 			
 def check_menu_button(mouse_x, mouse_y, menu_buttons, stats):
 	
@@ -155,7 +176,6 @@ def update_bullets(bullets, screen):
 		for bullet in players_bullets.copy():
 			if bullet.rect.bottom <= 0 or bullet.rect.top >= screen.get_rect().bottom or bullet.rect.left >= screen.get_rect().right or bullet.rect.right <= screen.get_rect().left:
 				players_bullets.remove(bullet)
-				print("borta")
 	
 def check_player_collide(settings, players):
 	hit = players[0].rect.colliderect(players[1].rect)

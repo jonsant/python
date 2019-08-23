@@ -37,7 +37,6 @@ class Bullet(Sprite):
 		self.centery = float(self.rect.centery)
 		
 	def update(self):
-		print(self.centerx)
 		if self.player_direction == "left":
 			self.centerx -= self.settings.bullet_speed_factor
 		elif self.player_direction == "right":
