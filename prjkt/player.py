@@ -11,10 +11,17 @@ class Player(Sprite):
 		
 		self.start_pos = player_start_pos
 		
+		
 		if self.player_num == 1:
-			self.image = pygame.image.load("images/tank%d_right.png" % self.player_num)
+			self.direction = "right"
+			self.image = pygame.image.load("images/tank%d.png" % self.player_num)
+			self.img = pygame.transform.rotate(self.image, 90)
 		else:
-			self.image = pygame.image.load("images/tank%d_left.png" % self.player_num)
+			self.direction = "left"
+			self.image = pygame.image.load("images/tank%d.png" % self.player_num)
+			self.img = pygame.transform.rotate(self.image, 270)
+			
+			
 		self.rect = self.image.get_rect()
 		self.screen_rect = screen.get_rect()
 		
@@ -22,8 +29,6 @@ class Player(Sprite):
 		self.moving_right = False
 		self.moving_up = False
 		self.moving_down = False
-		
-		
 		
 		self.settings = settings
 		
@@ -56,24 +61,32 @@ class Player(Sprite):
 		self.rect.centery = self.centery
 	
 	def update_image(self):
-		if self.moving_left and self.moving_up:
-			self.image = pygame.image.load("images/tank%d_left_up.png" % self.player_num)
-		elif self.moving_left and self.moving_down:
-			self.image = pygame.image.load("images/tank%d_left_down.png" % self.player_num)
-		elif self.moving_left:
-			self.image = pygame.image.load("images/tank%d_left.png" % self.player_num)
-		elif self.moving_right and self.moving_up:
-			self.image = pygame.image.load("images/tank%d_right_up.png" % self.player_num)
-		elif self.moving_right and self.moving_down:
-			self.image = pygame.image.load("images/tank%d_right_down.png" % self.player_num)
+		if self.moving_left:
+			self.headed_left = True
+			self.headed_up = False
+			self.headed_right = False
+			self.headed_down = False
+			self.img = pygame.transform.rotate(self.image, 270)
 		elif self.moving_right:
-			self.image = pygame.image.load("images/tank%d_right.png" % self.player_num)
+			self.headed_left = False
+			self.headed_up = False
+			self.headed_right = True
+			self.headed_down = False
+			self.img = pygame.transform.rotate(self.image, 90)
 		elif self.moving_up:
-			self.image = pygame.image.load("images/tank%d_up.png" % self.player_num)
+			self.headed_left = False
+			self.headed_up = True
+			self.headed_right = False
+			self.headed_down = False
+			self.img = pygame.transform.rotate(self.image, 180)
 		elif self.moving_down:
-			self.image = pygame.image.load("images/tank%d_down.png" % self.player_num)
+			self.headed_left = False
+			self.headed_up = False
+			self.headed_right = False
+			self.headed_down = True
+			self.img = self.image
 		
 	def blitme(self):
 		"""Draw the ship at its current location."""
-		self.screen.blit(self.image, self.rect)
+		self.screen.blit(self.img, self.rect)
 		
