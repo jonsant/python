@@ -42,7 +42,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 						players[1].moving_left = True
 						players[1].direction = "left"
 						
-				elif event.axis == 1:
+				elif event.axis == settings.joystick_yaxis:
 					if val == 1:
 						players[1].moving_down = True
 						players[1].direction = "down"
