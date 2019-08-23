@@ -6,6 +6,7 @@ import funcs as funcs
 from player import Player
 from button import Button
 from pygame.sprite import Group
+import pygame.font
 
 def game():
 	pygame.init()
@@ -35,6 +36,21 @@ def game():
 	settings_button = Button(screen, settings, "settings")
 	menu_buttons = [play_button, settings_button]
 	
+	# menu msg	
+	text_color = (255,255,255)
+	font = pygame.font.SysFont(None, 48)
+	
+	msg = "No joystick found"
+	msg_img = font.render(msg, True, text_color)
+	
+	msg_rect = msg_img.get_rect()
+	msg_rect.centerx = screen.get_rect().centerx
+	msg_rect.bottom = screen.get_rect().bottom - 10
+	
+	if not joysticks:
+		settings.show_menu_msg = True
+	
+	#clock
 	
 	clock = pygame.time.Clock()
 
@@ -52,6 +68,6 @@ def game():
 			funcs.check_player_collide(settings, players)
 			# ---
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, msg_img, msg_rect)
 
 game()

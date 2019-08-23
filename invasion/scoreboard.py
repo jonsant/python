@@ -79,8 +79,7 @@ class Scoreboard():
 		
 	def prep_vBullets_left(self):
 		"""Show how many vBullets are left before ships will be removed."""
-		self.vBullets_image = self.font.render(str(self.stats.vBullets_before_ship_lost), True, self.text_color,
-			self.my_settings.bg_color)
+		self.vBullets_image = self.font.render(str(self.stats.vBullets_before_ship_lost), True, self.text_color)
 		
 		# Position the number of vBullets below the level.
 		self.vBullets_rect = self.vBullets_image.get_rect()

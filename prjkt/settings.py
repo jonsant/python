@@ -40,3 +40,6 @@ class Settings():
 		self.joystick_b = None
 		self.joystick_a = None
 		self.buttons_left = 6
+		
+		# other
+		self.show_menu_msg = False
