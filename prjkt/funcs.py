@@ -19,15 +19,16 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			mouse_x, mouse_y = pygame.mouse.get_pos()
 			check_menu_button(mouse_x, mouse_y, menu_buttons, stats)
 		elif event.type == pygame.JOYAXISMOTION:
+			val = round(event.value)
 			if stats.in_settings:
-				if settings.buttons_left == 6:
-					settings.joystick_xaxis = event.axis
-					settings.buttons_left = 5
-				elif settings.buttons_left == 5:
-					settings.joystick_yaxis = event.axis
-					settings.buttons_left = 4
+				if val == -1:
+					if settings.buttons_left == 6:
+						settings.joystick_xaxis = event.axis
+						settings.buttons_left = 5
+					elif settings.buttons_left == 5:
+						settings.joystick_yaxis = event.axis
+						settings.buttons_left = 4
 			else:
-				val = round(event.value)
 				if event.axis == settings.joystick_xaxis:
 					if val == 1:
 						players[1].moving_right = True
