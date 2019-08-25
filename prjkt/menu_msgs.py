@@ -38,3 +38,4 @@ class Menu_Msgs():
 		
 	def show_settings_msgs(self):
 		self.screen.blit(self.joystick_setup_msg_img, self.joystick_setup_msg_rect)
+		

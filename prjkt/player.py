@@ -11,6 +11,8 @@ class Player(Sprite):
 		
 		self.start_pos = player_start_pos
 		
+		self.health = 100
+		
 		
 		if self.player_num == 1:
 			self.direction = "right"

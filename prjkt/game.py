@@ -7,6 +7,7 @@ from player import Player
 from button import Button
 from menu_msgs import Menu_Msgs
 from pygame.sprite import Group
+from scoreboard import Scoreboard
 import pygame.font
 
 def game():
@@ -25,8 +26,8 @@ def game():
 	
 	stats = Stats(screen, settings)
 	
-	player1 = Player(settings, screen, 1, settings.player1_start_pos)
-	player2 = Player(settings, screen, 2, settings.player2_start_pos)
+	player1 = Player(settings, screen, 2, settings.player1_start_pos)
+	player2 = Player(settings, screen, 1, settings.player2_start_pos)
 	players = [player1, player2]
 	
 	bullets1 = Group()
@@ -35,7 +36,11 @@ def game():
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
-	menu_buttons = [play_button, settings_button]
+	quit_button = Button(screen, settings, "quit")
+	menu_buttons = [play_button, settings_button, quit_button]
+	
+	#Scoreboard
+	sb = Scoreboard(screen, settings, players)
 	
 	#menu msgs
 	menu_msgs = Menu_Msgs(settings, screen)
@@ -55,11 +60,11 @@ def game():
 			
 			player1.update()
 			player2.update()
-			funcs.update_bullets(bullets, screen)
+			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 			
 			funcs.check_player_collide(settings, players)
 			# ---
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb)
 
 game()

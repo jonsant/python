@@ -87,14 +87,21 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
 	
 		if btn_clicked:
-			if btn.button_type == "play":
-				stats.in_game = True
-			elif btn.button_type == "settings":
-				if joysticks:
-					settings.show_main_msg = False
-					stats.in_settings = True
-				else:
-					settings.show_main_msg = True
+			if not stats.in_game:
+				if btn.button_type == "play":
+					stats.in_game = True
+				elif btn.button_type == "settings":
+					if joysticks:
+						settings.show_main_msg = False
+						stats.in_settings = True
+					else:
+						settings.show_main_msg = True
+				elif btn.button_type == "quit":
+					sys.exit()
+			elif stats.in_game and stats.someone_won:
+				if btn.button_type == "quit":
+					stats.in_game = False
+					
 					
 		
 def check_keydown_events(event, settings, screen, players, bullets):
@@ -153,7 +160,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb):
 	if stats.in_game:
 		screen.blit(settings.in_game_bg,(0,0))
 		
@@ -163,6 +170,13 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs):
 		for players_bullets in bullets:
 			for bullet in players_bullets.sprites():
 				bullet.blitme()
+				
+		sb.draw_scores()
+		
+		if stats.someone_won:			
+			for btn in menu_buttons:
+				if btn.button_type == "quit":
+					btn.draw_quit_button()	
 	
 		pygame.display.flip()
 	
@@ -184,14 +198,33 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs):
 		
 		pygame.display.flip()
 
-def update_bullets(bullets, screen):
-	for players_bullets in bullets:
+def update_bullets(bullets, screen, players, settings, stats, sb):
+	for idx, players_bullets in enumerate(bullets):
 		players_bullets.update()
-	
-	for players_bullets in bullets:	
+		
+		# If bullet is outside of screen, remove from group
 		for bullet in players_bullets.copy():
 			if bullet.rect.bottom <= 0 or bullet.rect.top >= screen.get_rect().bottom or bullet.rect.left >= screen.get_rect().right or bullet.rect.right <= screen.get_rect().left:
 				players_bullets.remove(bullet)
+	if not stats.someone_won:			
+		for idx, players_bullets in enumerate(bullets):
+			check_bullet_enemy_collisions(players_bullets, idx, screen, players, settings, stats, sb)
+
+def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, settings, stats, sb):
+	for player_idx, player in enumerate(players):
+		# If current player is the owner of the bullets, don't check for collisions
+		if bullet_idx == player_idx:
+			continue
+		else:
+			collisions = pygame.sprite.spritecollide(player, players_bullets, True)
+			if collisions:
+				if (player.health - settings.bullet_damage) <= 0:
+					stats.someone_won = True
+					player.health = 0
+					sb.prep_info_text("Player " + str(player.player_num) + " won!")
+				else:
+					player.health -= settings.bullet_damage
+				
 	
 def check_player_collide(settings, players):
 	hit = players[0].rect.colliderect(players[1].rect)

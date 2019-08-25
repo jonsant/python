@@ -15,6 +15,12 @@ class Button():
 	
 		
 	def draw_button(self, idx, num_of_buttons):
-		self.rect.center = (self.screen.get_rect().centerx, (self.screen.get_rect().centery * idx) / num_of_buttons)
+		sc_height = self.screen.get_rect().height
+		space_each = (sc_height / num_of_buttons) - 50
+		self.rect.center = (self.screen.get_rect().centerx, (space_each * idx))
+		self.screen.blit(self.image, self.rect)
+		
+	def draw_quit_button(self):
+		self.rect.center = (self.screen.get_rect().centerx, self.screen.get_rect().centery)
 		self.screen.blit(self.image, self.rect)
 

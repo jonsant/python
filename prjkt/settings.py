@@ -26,6 +26,7 @@ class Settings():
 		
 			# Both
 		self.player_speed = 5
+		self.player_health_color = (40,255,50)
 		
 			# Player1
 		self.player1_start_pos = pygame.Rect(300, 300,97,72)
