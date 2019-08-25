@@ -25,9 +25,11 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					if settings.buttons_left == 6:
 						settings.joystick_xaxis = event.axis
 						settings.buttons_left = 5
+						menu_msgs.prep_joystick_setup_msg("Up Control Pad")
 					elif settings.buttons_left == 5:
 						settings.joystick_yaxis = event.axis
 						settings.buttons_left = 4
+						menu_msgs.prep_joystick_setup_msg("Select")
 			else:
 				if event.axis == settings.joystick_xaxis:
 					if val == 1:
@@ -59,14 +61,19 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				if settings.buttons_left == 4:
 					settings.joystick_select = event.button
 					settings.buttons_left = 3
+					menu_msgs.prep_joystick_setup_msg("Start")
 				elif settings.buttons_left == 3:
 					settings.joystick_start = event.button
 					settings.buttons_left = 2
+					menu_msgs.prep_joystick_setup_msg("B")
 				elif settings.buttons_left == 2:
 					settings.joystick_b = event.button
 					settings.buttons_left = 1
+					menu_msgs.prep_joystick_setup_msg("A")
 				elif settings.buttons_left == 1:
 					settings.joystick_a = event.button
+					menu_msgs.prep_main_msg("Controller Setup!")
+					settings.show_main_msg = True
 					settings.buttons_left = 0
 					stats.in_settings = False
 					
@@ -84,10 +91,10 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				stats.in_game = True
 			elif btn.button_type == "settings":
 				if joysticks:
-					settings.show_no_joystick_msg = False
+					settings.show_main_msg = False
 					stats.in_settings = True
 				else:
-					settings.show_no_joystick_msg = True
+					settings.show_main_msg = True
 					
 		
 def check_keydown_events(event, settings, screen, players, bullets):
@@ -162,6 +169,7 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs):
 	elif stats.in_settings:
 		screen.blit(settings.settings_bg, (0,0))
 		
+		menu_msgs.show_settings_msgs()
 		
 		pygame.display.flip()
 		

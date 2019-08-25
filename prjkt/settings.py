@@ -42,4 +42,4 @@ class Settings():
 		self.joystick_a = None
 		self.buttons_left = 6
 		
-		self.show_no_joystick_msg = False
+		self.show_main_msg = False
