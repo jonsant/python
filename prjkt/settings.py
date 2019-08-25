@@ -1,4 +1,5 @@
 import pygame
+import pygame.font
 
 class Settings():
 	def __init__(self):
@@ -41,5 +42,4 @@ class Settings():
 		self.joystick_a = None
 		self.buttons_left = 6
 		
-		# other
-		self.show_menu_msg = False
+		self.show_no_joystick_msg = False

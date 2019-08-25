@@ -1,11 +1,10 @@
 import pygame
-import settings as settings
 import sys
 from pygame.locals import *
 from bullet import Bullet
 import pygame.font
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
@@ -18,7 +17,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(mouse_x, mouse_y, menu_buttons, stats, joysticks, screen)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs)
 		elif event.type == pygame.JOYAXISMOTION:
 			val = round(event.value)
 			if stats.in_settings:
@@ -75,7 +74,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				if event.button == settings.joystick_a:
 					new_bullet(bullets[1], settings, screen, players[1])
 			
-def check_menu_button(mouse_x, mouse_y, menu_buttons, stats, joysticks, screen):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -84,10 +83,12 @@ def check_menu_button(mouse_x, mouse_y, menu_buttons, stats, joysticks, screen):
 			if btn.button_type == "play":
 				stats.in_game = True
 			elif btn.button_type == "settings":
-				if joysticks:	
+				if joysticks:
+					settings.show_no_joystick_msg = False
 					stats.in_settings = True
 				else:
-					pass
+					settings.show_no_joystick_msg = True
+					
 		
 def check_keydown_events(event, settings, screen, players, bullets):
 	
@@ -145,7 +146,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, msg_img, msg_rect):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs):
 	if stats.in_game:
 		screen.blit(settings.in_game_bg,(0,0))
 		
@@ -171,8 +172,7 @@ def update(screen, settings, players, stats, menu_buttons, bullets, msg_img, msg
 		for idx, btn in enumerate(menu_buttons):
 			btn.draw_button(idx + 1, len(menu_buttons))
 		
-		if settings.show_menu_msg:
-			screen.blit(msg_img, msg_rect)
+		menu_msgs.show_main_menu_msgs()
 		
 		pygame.display.flip()
 
