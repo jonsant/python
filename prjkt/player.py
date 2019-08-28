@@ -1,5 +1,8 @@
 import pygame
 from pygame.sprite import Sprite
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 class Player(Sprite):
 	def __init__(self, settings, screen, plNum, player_start_pos=pygame.Rect(0,0,97,72)):
@@ -16,11 +19,11 @@ class Player(Sprite):
 		
 		if self.player_num == 1:
 			self.direction = "right"
-			self.image = pygame.image.load("images/tank%d.png" % self.player_num)
+			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 90)
 		else:
 			self.direction = "left"
-			self.image = pygame.image.load("images/tank%d.png" % self.player_num)
+			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 270)
 			
 			

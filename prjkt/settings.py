@@ -1,5 +1,8 @@
 import pygame
 import pygame.font
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 class Settings():
 	def __init__(self):
@@ -9,9 +12,9 @@ class Settings():
 		self.screen_height = 720
 		self.bg_color = (0,0,0)
 		
-		self.in_game_bg = pygame.image.load("images/bg.jpg")
-		self.menu_bg = pygame.image.load("images/menu_bg.png")
-		self.settings_bg = pygame.image.load("images/settings_bg.png")
+		self.in_game_bg = pygame.image.load(os.path.join(folder, "images/bg.jpg"))
+		self.menu_bg = pygame.image.load(os.path.join(folder, "images/menu_bg.png"))
+		self.settings_bg = pygame.image.load(os.path.join(folder, "images/settings_bg.png"))
 		
 		# Bullet:
 			# Standard

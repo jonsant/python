@@ -1,5 +1,8 @@
 import pygame
 from pygame.sprite import Sprite
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 class Bullet(Sprite):
 	def __init__(self, settings, screen, player):
@@ -11,7 +14,7 @@ class Bullet(Sprite):
 		
 		self.player_centerx = player.centerx
 		
-		self.image = pygame.image.load("images/standard_bullet.png")
+		self.image = pygame.image.load(os.path.join(folder, "images/standard_bullet.png"))
 		
 		self.rect = self.image.get_rect()
 		self.rect.centerx = player.centerx
