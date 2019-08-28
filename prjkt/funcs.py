@@ -4,10 +4,10 @@ from pygame.locals import *
 from bullet import Bullet
 import pygame.font
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
-			sys.exit()
+			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
 			check_keydown_events(event, settings, screen, players, bullets)
@@ -17,8 +17,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb)
 		elif event.type == pygame.JOYAXISMOTION:
+			# If there are 3 players, set joystick to control player 3. If two players, control player 2
+			if len(players) == 3:
+				player = players[2]
+			elif len(players) == 2:
+				player = players[1]
+
 			val = round(event.value)
 			if stats.in_settings:
 				if val == -1:
@@ -33,30 +39,39 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			else:
 				if event.axis == settings.joystick_xaxis:
 					if val == 1:
-						players[1].moving_right = True
-						players[1].direction = "right"
+						player.moving_right = True
+						player.direction = "right"
 						
 					elif val == 0:
-						players[1].moving_right = False
-						players[1].moving_left = False
+						player.moving_right = False
+						player.moving_left = False
 						
 					elif val == -1:
-						players[1].moving_left = True
-						players[1].direction = "left"
+						player.moving_left = True
+						player.direction = "left"
 						
 				elif event.axis == settings.joystick_yaxis:
 					if val == 1:
-						players[1].moving_down = True
-						players[1].direction = "down"
+						player.moving_down = True
+						player.direction = "down"
 					
 					elif val == 0:
-						players[1].moving_down = False
-						players[1].moving_up = False
+						player.moving_down = False
+						player.moving_up = False
 						
 					elif val == -1:
-						players[1].moving_up = True
-						players[1].direction = "up"
+						player.moving_up = True
+						player.direction = "up"
+
 		elif event.type == pygame.JOYBUTTONDOWN:
+			# If there are 3 players, set joystick to control player 3. If two players, control player 2
+			if len(players) == 3:
+				player = players[2]
+				bulletGroup = 2
+			elif len(players) == 2:
+				player = players[1]
+				bulletGroup = 1
+
 			if stats.in_settings:
 				if settings.buttons_left == 4:
 					settings.joystick_select = event.button
@@ -79,9 +94,9 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					
 			else:
 				if event.button == settings.joystick_a:
-					new_bullet(bullets[1], settings, screen, players[1])
+					new_bullet(bullets[bulletGroup], settings, screen, player)
 			
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -89,6 +104,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 		if btn_clicked:
 			if not stats.in_game:
 				if btn.button_type == "play":
+					initGame(settings, stats, screen, sb)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -97,12 +113,14 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 					else:
 						settings.show_main_msg = True
 				elif btn.button_type == "quit":
-					sys.exit()
+					sys.exit(0)
 			elif stats.in_game and stats.someone_won:
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-					
+def initGame(settings, stats, screen, sb):
+	stats.someone_won = False
+	sb.prep_info_text("")
 		
 def check_keydown_events(event, settings, screen, players, bullets):
 	
@@ -206,22 +224,34 @@ def update_bullets(bullets, screen, players, settings, stats, sb):
 		for bullet in players_bullets.copy():
 			if bullet.rect.bottom <= 0 or bullet.rect.top >= screen.get_rect().bottom or bullet.rect.left >= screen.get_rect().right or bullet.rect.right <= screen.get_rect().left:
 				players_bullets.remove(bullet)
-	if not stats.someone_won:			
+	# Don't check for bullet collisions if someone already won
+	if not stats.someone_won:
+		# Check collisions for every players group of bullets.			
 		for idx, players_bullets in enumerate(bullets):
 			check_bullet_enemy_collisions(players_bullets, idx, screen, players, settings, stats, sb)
 
+	players_alive = []
+	for player in players:
+		if player.health > 0:
+			players_alive.append(player)
+		else:
+			continue
+	if len(players_alive) == 1:
+		stats.someone_won = True
+		sb.prep_info_text("Player " + str(players_alive[0].player_num) + " won!")
+
 def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, settings, stats, sb):
+	# For every player in the list of players, check if there's any collision
 	for player_idx, player in enumerate(players):
-		# If current player is the owner of the bullets, don't check for collisions
+		# If current player is the owner of the bullet group, don't check for collisions
 		if bullet_idx == player_idx:
 			continue
 		else:
 			collisions = pygame.sprite.spritecollide(player, players_bullets, True)
 			if collisions:
 				if (player.health - settings.bullet_damage) <= 0:
-					stats.someone_won = True
+					
 					player.health = 0
-					sb.prep_info_text("Player " + str(player.player_num) + " won!")
 				else:
 					player.health -= settings.bullet_damage
 				

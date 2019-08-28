@@ -21,7 +21,11 @@ class Player(Sprite):
 			self.direction = "right"
 			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 90)
-		else:
+		elif self.player_num == 2:
+			self.direction = "left"
+			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
+			self.img = pygame.transform.rotate(self.image, 270)
+		elif self.player_num == 3:
 			self.direction = "left"
 			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 270)
