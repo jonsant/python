@@ -107,7 +107,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 			if not stats.in_game:
 				if btn.button_type == "play":
 					
-					#initGame(settings, stats, screen, sb, players, bullets)
+					initGame(settings, stats, screen, sb, players, bullets)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -126,33 +126,36 @@ def initGame(settings, stats, screen, sb, players, bullets):
 	stats.someone_won = False
 	sb.prep_info_text("")
 
-	players = []
-	bullets = []
+	#players = []
+	#bullets = []
 
 	# variable value to be replaced with whatever the players decide in the menu...
 	playernum = 3
 
-	player1 = Player(settings, screen, 1, settings.player1_start_pos)
-	player2 = Player(settings, screen, 2, settings.player2_start_pos)
+	#player1 = Player(settings, screen, 1, settings.player1_start_pos)
+	#player2 = Player(settings, screen, 2, settings.player2_start_pos)
 
-	players.append(player1)
-	players.append(player2)
+	#players.append(player1)
+	#players.append(player2)
 
-	bullets1 = Group()
-	bullets2 = Group()
+	#bullets1 = Group()
+	#bullets2 = Group()
 
-	bullets.append(bullets1)
-	bullets.append(bullets2)
+	#bullets.append(bullets1)
+	#bullets.append(bullets2)
 
-	if playernum == 3:
+	""" if playernum == 3:
 		player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
 		players.append(player3)
 
 		bullets3 = Group()
-		bullets.append(bullets3)
+		bullets.append(bullets3) """
+		
+	#if playernum == 2:
+	#	del players[2]
 
 	
-	stats.in_game = True
+	#stats.in_game = True
 	print(players)
 
 	
