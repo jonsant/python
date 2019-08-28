@@ -3,6 +3,8 @@ import sys
 from pygame.locals import *
 from bullet import Bullet
 import pygame.font
+from player import Player
+from pygame.sprite import Group
 
 def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb):
 	for event in pygame.event.get():
@@ -17,7 +19,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -96,7 +98,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				if event.button == settings.joystick_a:
 					new_bullet(bullets[bulletGroup], settings, screen, player)
 			
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -104,10 +106,12 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 		if btn_clicked:
 			if not stats.in_game:
 				if btn.button_type == "play":
-					initGame(settings, stats, screen, sb)
+					
+					#initGame(settings, stats, screen, sb, players, bullets)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
+						
 						settings.show_main_msg = False
 						stats.in_settings = True
 					else:
@@ -118,9 +122,41 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb):
+def initGame(settings, stats, screen, sb, players, bullets):
 	stats.someone_won = False
 	sb.prep_info_text("")
+
+	players = []
+	bullets = []
+
+	# variable value to be replaced with whatever the players decide in the menu...
+	playernum = 3
+
+	player1 = Player(settings, screen, 1, settings.player1_start_pos)
+	player2 = Player(settings, screen, 2, settings.player2_start_pos)
+
+	players.append(player1)
+	players.append(player2)
+
+	bullets1 = Group()
+	bullets2 = Group()
+
+	bullets.append(bullets1)
+	bullets.append(bullets2)
+
+	if playernum == 3:
+		player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
+		players.append(player3)
+
+		bullets3 = Group()
+		bullets.append(bullets3)
+
+	
+	stats.in_game = True
+	print(players)
+
+	
+
 		
 def check_keydown_events(event, settings, screen, players, bullets):
 	
@@ -181,7 +217,6 @@ def new_bullet(bullet_group, settings, screen, player):
 def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb):
 	if stats.in_game:
 		screen.blit(settings.in_game_bg,(0,0))
-		
 		for player in players:
 			player.blitme()
 		

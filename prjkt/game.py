@@ -29,12 +29,13 @@ def game():
 	player1 = Player(settings, screen, 1, settings.player1_start_pos)
 	player2 = Player(settings, screen, 2, settings.player2_start_pos)
 	player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
-	players = [player1, player2]
-	
+	players = [player1, player2, player3]
+
 	bullets1 = Group()
 	bullets2 = Group()
 	bullets3 = Group()
-	bullets = [bullets1, bullets2]
+
+	bullets = [bullets1, bullets2, bullets3]
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
@@ -59,7 +60,6 @@ def game():
 		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb)
 		
 		if stats.in_game:
-			
 			for player in players:
 				player.update()
 			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
