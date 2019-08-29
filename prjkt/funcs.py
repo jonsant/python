@@ -193,6 +193,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
+		players[0].moving_up = False
 		players[0].direction = "right"
 	elif event.key == pygame.K_LEFT:
 		players[0].moving_left = True
@@ -238,6 +239,10 @@ def check_keyup_events(event, settings, screen, players):
 		players[0].moving_left = False
 	elif event.key == pygame.K_UP:
 		players[0].moving_up = False
+		""" if players[0].moving_right:
+			players[0].direction = "right"
+		elif players[0].moving_left:
+			players[0].direction = "left" """
 	elif event.key == pygame.K_DOWN:
 		players[0].moving_down = False
 	elif event.key == pygame.K_a:
@@ -254,7 +259,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, hearts):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items):
 	if stats.in_game:
 		screen.blit(settings.in_game_bg,(0,0))
 		for player in players:
@@ -271,8 +276,9 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 				if btn.button_type == "quit":
 					btn.draw_quit_button()	
 	
-		for heart in hearts.sprites():
-			heart.draw_heart()
+		for itemGroup in items:
+			for item in itemGroup.sprites():
+				item.draw_item()
 
 		pygame.display.flip()
 	
@@ -357,11 +363,33 @@ def check_player_collide(settings, players):
 				player.centerx -= 10
 				player.moving_down = True
 		
-def check_player_heart_collide(settings, players, hearts, sb):
+def check_player_heart_collide(settings, players, hearts, sb, stats):
 	for player in players:
-		collisions = pygame.sprite.spritecollide(player, hearts, True)
+		if player.can_take_health:
+			collisions = pygame.sprite.spritecollide(player, hearts, True)
+
+			if collisions:
+				if player.health + settings.heart_healing <= 100:
+					player.health += settings.heart_healing
+					sb.prep_health_scores()
+		else:
+			collisions = pygame.sprite.spritecollide(player, hearts, True)
+
+			if collisions:
+				if stats.current_commie.health + settings.heart_healing <= 100:
+					stats.current_commie.health += settings.heart_healing
+					sb.prep_health_scores()
+
+def check_player_commie_collide(settings, players, commies, sb, stats):
+	for player in players:
+		collisions = pygame.sprite.spritecollide(player, commies, True)
 
 		if collisions:
-			if player.health + settings.heart_healing <= 100:
-				player.health += settings.heart_healing
-				sb.prep_health_scores()
+			stats.current_commie = player
+
+			# Make all players except commie unable to gain health
+			for plr in players:
+				if plr.player_num == player.player_num:
+					continue
+				else:
+					plr.can_take_health = False

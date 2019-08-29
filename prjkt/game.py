@@ -11,6 +11,7 @@ from scoreboard import Scoreboard
 import pygame.font
 import random
 from heart import Heart
+from commie import Commie
 
 def game():
 	pygame.init()
@@ -40,6 +41,8 @@ def game():
 	bullets = [bullets1, bullets2]
 
 	hearts = Group()
+	commies = Group()
+	items = [hearts, commies]
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
@@ -63,20 +66,28 @@ def game():
 		
 		if stats.in_game:
 
-
-			if random.randrange(0, 500) < 1:
+			# Spawn hearts
+			if random.randrange(0, 50) < 1:
 				
-				heart = Heart(screen, settings)
-				hearts.add(heart)
+				if len(hearts.sprites()) < 3:
+					heart = Heart(screen, settings)
+					hearts.add(heart)
+
+			# Spawn commies:
+			if random.randrange(0, 50) < 1:
+				if len(commies.sprites()) == 0 and stats.current_commie == None:
+					commie = Commie(screen, settings)
+					commies.add(commie)
 
 			for player in players:
 				player.update()
 			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 			
 			funcs.check_player_collide(settings, players)
-			funcs.check_player_heart_collide(settings, players, hearts, sb)
+			funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
+			funcs.check_player_commie_collide(settings, players, commies, sb, stats)
 			# ---
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, hearts)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items)
 
 game()
