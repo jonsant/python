@@ -19,15 +19,19 @@ class Settings():
 		# Bullet:
 			# Standard
 		self.bullet_speed_factor = 30
-		self.bullet_damage = 10
+		self.bullet_damage = 5
 		
 			# Big
-		self.big_bullet_speed = 30
+		self.big_bullet_speed = 40
 		self.big_bullet_damage = 30
 		
+		# Heart:
+		self.heart_healing = 5
+
 		# Player settings
 		
 			# Both
+		self.player_health = 100
 		self.player_speed = 5
 		self.player_health_color = (40,255,50)
 		

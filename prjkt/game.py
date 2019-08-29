@@ -9,6 +9,8 @@ from menu_msgs import Menu_Msgs
 from pygame.sprite import Group
 from scoreboard import Scoreboard
 import pygame.font
+import random
+from heart import Heart
 
 def game():
 	pygame.init()
@@ -36,6 +38,8 @@ def game():
 	bullets3 = Group()
 
 	bullets = [bullets1, bullets2]
+
+	hearts = Group()
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
@@ -57,16 +61,24 @@ def game():
 	while True:
 		clock.tick(60)
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts)
 		
 		if stats.in_game:
+
+
+			if random.randrange(0, 500) < 1:
+				
+				heart = Heart(screen, settings)
+				hearts.add(heart)
+
 			for player in players:
 				player.update()
 			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 			
 			funcs.check_player_collide(settings, players)
+			funcs.check_player_heart_collide(settings, players, hearts, sb)
 			# ---
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, hearts)
 
 game()

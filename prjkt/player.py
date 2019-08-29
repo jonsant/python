@@ -16,13 +16,13 @@ class Player(Sprite):
 
 		self.screen_rect = screen.get_rect()
 		
-		self.initialize_player()
-
 		self.settings = settings
+
+		self.initialize_player()
 		
 
 	def initialize_player(self):
-		self.health = 100
+		self.health = self.settings.player_health
 
 		if self.player_num == 1:
 			self.direction = "right"

@@ -5,8 +5,9 @@ from bullet import Bullet
 import pygame.font
 from player import Player
 from pygame.sprite import Group
+from heart import Heart
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit(0)
@@ -19,7 +20,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -98,7 +99,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				if event.button == settings.joystick_a:
 					new_bullet(bullets[bulletGroup], settings, screen, player)
 			
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -106,8 +107,8 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 		if btn_clicked:
 			if not stats.in_game:
 				if btn.button_type == "play":
-					
-					initGame(settings, stats, screen, sb, players, bullets)
+
+					initGame(settings, stats, screen, sb, players, bullets, hearts)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -122,13 +123,16 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb, players, bullets):
-	stats.someone_won = False
-	sb.prep_info_text("")
-	
+def initGame(settings, stats, screen, sb, players, bullets, hearts):
+
 	for player in players:
 		player.initialize_player()
 
+	stats.someone_won = False
+	sb.reset_scoreboard()
+
+	hearts.empty()
+	
 	#players = []
 	#bullets = []
 
@@ -227,7 +231,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, hearts):
 	if stats.in_game:
 		screen.blit(settings.in_game_bg,(0,0))
 		for player in players:
@@ -237,13 +241,16 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 			for bullet in players_bullets.sprites():
 				bullet.blitme()
 				
-		sb.draw_scores()
+		sb.draw_health_bars()
 
 		if stats.someone_won:			
 			for btn in menu_buttons:
 				if btn.button_type == "quit":
 					btn.draw_quit_button()	
 	
+		for heart in hearts.sprites():
+			heart.draw_heart()
+
 		pygame.display.flip()
 	
 	elif stats.in_settings:
@@ -300,8 +307,10 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 				if (player.health - settings.bullet_damage) <= 0:
 					
 					player.health = 0
+					sb.prep_health_scores()
 				else:
 					player.health -= settings.bullet_damage
+					sb.prep_health_scores()
 				
 	
 def check_player_collide(settings, players):
@@ -325,3 +334,11 @@ def check_player_collide(settings, players):
 				player.centerx -= 10
 				player.moving_down = True
 		
+def check_player_heart_collide(settings, players, hearts, sb):
+	for player in players:
+		collisions = pygame.sprite.spritecollide(player, hearts, True)
+
+		if collisions:
+			if player.health + settings.heart_healing <= 100:
+				player.health += settings.heart_healing
+				sb.prep_health_scores()
