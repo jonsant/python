@@ -76,6 +76,8 @@ class Player(Sprite):
 		self.rect.centery = self.centery
 	
 	def update_image(self):
+		if self.moving_left and self.moving_up:
+			self.img = pygame.transform.rotate(self.image, 100)
 		if self.moving_left:
 			self.headed_left = True
 			self.headed_up = False

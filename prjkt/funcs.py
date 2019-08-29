@@ -18,7 +18,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players)
@@ -189,11 +189,11 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts):
 	
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
-		players[0].moving_up = False
+		#players[0].moving_up = False
 		players[0].direction = "right"
 	elif event.key == pygame.K_LEFT:
 		players[0].moving_left = True
@@ -208,7 +208,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb):
 		if stats.in_game:
 			new_bullet(bullets[0], settings, screen, players[0])
 		else:
-			initGame(settings, stats, screen, sb, players, bullets)
+			initGame(settings, stats, screen, sb, players, bullets, hearts)
 			stats.in_game = True
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
