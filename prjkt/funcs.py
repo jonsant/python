@@ -193,17 +193,16 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
-		#players[0].moving_up = False
-		players[0].direction = "right"
+		#players[0].direction = "right"
 	elif event.key == pygame.K_LEFT:
 		players[0].moving_left = True
-		players[0].direction = "left"
+		#players[0].direction = "left"
 	elif event.key == pygame.K_UP:
 		players[0].moving_up = True
-		players[0].direction = "up"
+		#players[0].direction = "up"
 	elif event.key == pygame.K_DOWN:
 		players[0].moving_down = True
-		players[0].direction = "down"
+		#players[0].direction = "down"
 	elif event.key == pygame.K_RETURN:
 		if stats.in_game:
 			new_bullet(bullets[0], settings, screen, players[0])

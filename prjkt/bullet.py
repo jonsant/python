@@ -17,8 +17,7 @@ class Bullet(Sprite):
 		self.image = pygame.image.load(os.path.join(folder, "images/standard_bullet.png"))
 		
 		self.rect = self.image.get_rect()
-		self.rect.centerx = player.centerx
-		self.rect.centery = player.centery
+		
 		
 		self.moving_left = False
 		self.moving_right = False
@@ -26,12 +25,26 @@ class Bullet(Sprite):
 		self.moving_down = False
 		
 		self.player_direction = player.direction
+
+		self.rect.centerx = player.centerx
+		self.rect.centery = player.centery
 		
-		if self.player_direction == "left":
-			self.img = pygame.transform.rotate(self.image, 90)
-		elif self.player_direction == "right":
+		if self.player_direction == "upleft":
+			self.img = pygame.transform.rotate(self.image, 225)
+		elif self.player_direction == "leftdown":
+			self.img = pygame.transform.rotate(self.image, 315)
+			self.rect.centerx += 25
+		elif self.player_direction == "upright":
+			self.img = pygame.transform.rotate(self.image, 135)
+			self.rect.centerx += 10
+			self.rect.centery += 20
+		elif self.player_direction == "rightdown":
+			self.img = pygame.transform.rotate(self.image, 45)
+		elif self.player_direction == "left":
 			self.img = pygame.transform.rotate(self.image, 270)
-		elif self.player_direction == "down":
+		elif self.player_direction == "right":
+			self.img = pygame.transform.rotate(self.image, 90)
+		elif self.player_direction == "up":
 			self.img = pygame.transform.rotate(self.image, 180)
 		else:
 			self.img = self.image
@@ -40,7 +53,19 @@ class Bullet(Sprite):
 		self.centery = float(self.rect.centery)
 		
 	def update(self):
-		if self.player_direction == "left":
+		if self.player_direction == "upleft":
+			self.centerx -= self.settings.bullet_speed_factor
+			self.centery -= self.settings.bullet_speed_factor
+		elif self.player_direction == "upright":
+			self.centerx += self.settings.bullet_speed_factor
+			self.centery -= self.settings.bullet_speed_factor
+		elif self.player_direction == "rightdown":
+			self.centerx += self.settings.bullet_speed_factor
+			self.centery += self.settings.bullet_speed_factor
+		elif self.player_direction == "leftdown":
+			self.centerx -= self.settings.bullet_speed_factor
+			self.centery += self.settings.bullet_speed_factor
+		elif self.player_direction == "left":
 			self.centerx -= self.settings.bullet_speed_factor
 		elif self.player_direction == "right":
 			self.centerx += self.settings.bullet_speed_factor
