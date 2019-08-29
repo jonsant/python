@@ -77,8 +77,14 @@ class Player(Sprite):
 	
 	def update_image(self):
 		if self.moving_left and self.moving_up:
-			self.img = pygame.transform.rotate(self.image, 100)
-		if self.moving_left:
+			self.img = pygame.transform.rotate(self.image, 225)
+		elif self.moving_left and self.moving_down:
+			self.img = pygame.transform.rotate(self.image, 315)
+		elif self.moving_right and self.moving_up:
+			self.img = pygame.transform.rotate(self.image, 135)
+		elif self.moving_right and self.moving_down:
+			self.img = pygame.transform.rotate(self.image, 45)
+		elif self.moving_left:
 			self.headed_left = True
 			self.headed_up = False
 			self.headed_right = False
