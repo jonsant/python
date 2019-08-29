@@ -5,7 +5,7 @@ import os
 folder = os.path.dirname(os.path.realpath(__file__))
 
 class Settings():
-	def __init__(self):
+	def __init__(self, joysticks):
 		
 		# Screen settings
 		self.screen_width = 1280
@@ -42,12 +42,34 @@ class Settings():
 			# Player2
 		self.player2_start_pos = pygame.Rect(800, 300, 97,72)
 		
+		# Controller
 		self.joystick_xaxis = None
 		self.joystick_yaxis = None
 		self.joystick_select = None
 		self.joystick_start = None
 		self.joystick_b = None
 		self.joystick_a = None
+
+		# Load existing joystick config if exists
+		if joysticks:
+			try:
+				with open(os.path.join(folder, "controller.txt"), "r") as controller_settings:
+					for idx, line in enumerate(controller_settings):
+						if idx == 0:
+							self.joystick_xaxis = int(line)
+						elif idx == 1:
+							self.joystick_yaxis = int(line)
+						elif idx == 2:
+							self.joystick_select = int(line)
+						elif idx == 3:
+							self.joystick_start = int(line)
+						elif idx == 4:
+							self.joystick_b = int(line)
+						elif idx == 5:
+							self.joystick_a = int(line)
+			except FileNotFoundError:
+				pass
 		self.buttons_left = 6
+		self.controller_used = False
 		
 		self.show_main_msg = False

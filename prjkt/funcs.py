@@ -6,10 +6,15 @@ import pygame.font
 from player import Player
 from pygame.sprite import Group
 from heart import Heart
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
+			if settings.controller_used:
+				save_controller_settings(settings)
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
@@ -90,6 +95,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					menu_msgs.prep_joystick_setup_msg("A")
 				elif settings.buttons_left == 1:
 					settings.joystick_a = event.button
+					settings.controller_used = True
 					menu_msgs.prep_main_msg("Controller Setup!")
 					settings.show_main_msg = True
 					settings.buttons_left = 0
@@ -98,7 +104,19 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			else:
 				if event.button == settings.joystick_a:
 					new_bullet(bullets[bulletGroup], settings, screen, player)
-			
+
+def save_controller_settings(settings):
+	try:
+		with open(os.path.join(folder, "controller.txt"), "w") as controller_settings:
+			controller_settings.write(str(settings.joystick_xaxis) + "\n")
+			controller_settings.write(str(settings.joystick_yaxis) + "\n")
+			controller_settings.write(str(settings.joystick_select) + "\n")
+			controller_settings.write(str(settings.joystick_start) + "\n")
+			controller_settings.write(str(settings.joystick_b) + "\n")
+			controller_settings.write(str(settings.joystick_a) + "\n")
+	except FileNotFoundError:
+		pass
+
 def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts):
 	
 	for btn in menu_buttons:
@@ -112,12 +130,15 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
-						
+						settings.buttons_left = 6
 						settings.show_main_msg = False
 						stats.in_settings = True
+						menu_msgs.prep_joystick_setup_msg()
 					else:
 						settings.show_main_msg = True
 				elif btn.button_type == "quit":
+					if settings.controller_used:
+						save_controller_settings(settings)
 					sys.exit(0)
 			elif stats.in_game and stats.someone_won:
 				if btn.button_type == "quit":
@@ -206,6 +227,8 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb):
 		if stats.in_game:
 			stats.in_game = False
 		else:
+			if settings.controller_used:
+				save_controller_settings(settings)
 			sys.exit()
 	
 def check_keyup_events(event, settings, screen, players):

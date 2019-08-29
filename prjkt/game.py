@@ -21,7 +21,7 @@ def game():
 	for st in joysticks:
 		st.init()
 	
-	settings = Settings()
+	settings = Settings(joysticks)
 	
 	screen = pygame.display.set_mode((settings.screen_width, settings.screen_height))
 	pygame.display.set_caption("Game")
@@ -51,8 +51,6 @@ def game():
 	
 	#menu msgs
 	menu_msgs = Menu_Msgs(settings, screen)
-	
-	
 	
 	#clock
 	
