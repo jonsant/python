@@ -27,5 +27,5 @@ hist.x_title = "Result"
 hist.y_title = "Frequency of Result"
 
 hist.add('D6 + D6', frequencies)
-hist.render_to_file("die_visual.svg")
+hist.render_to_file("data visualization/die_visual.svg")
 

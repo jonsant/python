@@ -13,10 +13,17 @@ class Player(Sprite):
 		self.player_num = plNum
 		
 		self.start_pos = player_start_pos
+
+		self.screen_rect = screen.get_rect()
 		
+		self.initialize_player()
+
+		self.settings = settings
+		
+
+	def initialize_player(self):
 		self.health = 100
-		
-		
+
 		if self.player_num == 1:
 			self.direction = "right"
 			self.image = pygame.image.load(os.path.join(folder, "images/tank%d.png" % self.player_num))
@@ -32,14 +39,12 @@ class Player(Sprite):
 			
 			
 		self.rect = self.image.get_rect()
-		self.screen_rect = screen.get_rect()
 		
 		self.moving_left = False
 		self.moving_right = False
 		self.moving_up = False
 		self.moving_down = False
 		
-		self.settings = settings
 		
 		# Start each new ship at the bottom center of the screen.
 		self.rect.centerx = self.start_pos.centerx
@@ -48,7 +53,7 @@ class Player(Sprite):
 		# Store a decimal value for the ship's center
 		self.centerx = float(self.rect.centerx)
 		self.centery = float(self.rect.centery)
-		
+
 	def update(self):
 		
 		if self.moving_left:

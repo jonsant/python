@@ -18,7 +18,7 @@ class Settings():
 		
 		# Bullet:
 			# Standard
-		self.bullet_speed_factor = 20
+		self.bullet_speed_factor = 30
 		self.bullet_damage = 10
 		
 			# Big

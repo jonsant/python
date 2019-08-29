@@ -12,7 +12,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players)
@@ -125,12 +125,15 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 def initGame(settings, stats, screen, sb, players, bullets):
 	stats.someone_won = False
 	sb.prep_info_text("")
+	
+	for player in players:
+		player.initialize_player()
 
 	#players = []
 	#bullets = []
 
 	# variable value to be replaced with whatever the players decide in the menu...
-	playernum = 3
+	playernum = 2
 
 	#player1 = Player(settings, screen, 1, settings.player1_start_pos)
 	#player2 = Player(settings, screen, 2, settings.player2_start_pos)
@@ -156,12 +159,12 @@ def initGame(settings, stats, screen, sb, players, bullets):
 
 	
 	#stats.in_game = True
-	print(players)
+	#print(players)
 
 	
 
 		
-def check_keydown_events(event, settings, screen, players, bullets):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -176,7 +179,11 @@ def check_keydown_events(event, settings, screen, players, bullets):
 		players[0].moving_down = True
 		players[0].direction = "down"
 	elif event.key == pygame.K_RETURN:
-		new_bullet(bullets[0], settings, screen, players[0])
+		if stats.in_game:
+			new_bullet(bullets[0], settings, screen, players[0])
+		else:
+			initGame(settings, stats, screen, sb, players, bullets)
+			stats.in_game = True
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
 		players[1].direction = "left"
@@ -192,7 +199,10 @@ def check_keydown_events(event, settings, screen, players, bullets):
 	elif event.key == pygame.K_SPACE:
 		new_bullet(bullets[1], settings, screen, players[1])
 	elif event.key == pygame.K_q:
-		sys.exit()
+		if stats.in_game:
+			stats.in_game = False
+		else:
+			sys.exit()
 	
 def check_keyup_events(event, settings, screen, players):
 	if event.key == pygame.K_RIGHT:
@@ -228,7 +238,7 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 				bullet.blitme()
 				
 		sb.draw_scores()
-		
+
 		if stats.someone_won:			
 			for btn in menu_buttons:
 				if btn.button_type == "quit":

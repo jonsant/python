@@ -4,9 +4,12 @@ from pygal.maps.world import World
 from pygal.style import RotateStyle as RS, LightColorizedStyle as LCS
 
 from country_codes import get_country_code
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 # Load the data into a list.
-filename = "population_data.json"
+filename = os.path.join(folder,"population_data.json")
 with open(filename) as f:
 	pop_data = json.load(f)
 	
@@ -42,4 +45,4 @@ wm.add("0-10m", cc_pops_1)
 wm.add("10m-1bn", cc_pops_2)
 wm.add(">1bn", cc_pops_3)
 
-wm.render_to_file("world_population.svg")
+wm.render_to_file("data visualization/world_population.svg")

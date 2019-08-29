@@ -2,9 +2,12 @@ import csv
 from datetime import datetime
 
 from matplotlib import pyplot as plt
+import os
+
+folder = os.path.dirname(os.path.realpath(__file__))
 
 # Get dates and high temperatures from file.
-filename = "death_valley_2018_simple.csv"
+filename = os.path.join(folder,"death_valley_2018_simple.csv")
 with open(filename) as f:
 	reader = csv.reader(f)
 	header_row = next(reader)

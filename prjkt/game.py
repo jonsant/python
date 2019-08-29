@@ -29,13 +29,13 @@ def game():
 	player1 = Player(settings, screen, 1, settings.player1_start_pos)
 	player2 = Player(settings, screen, 2, settings.player2_start_pos)
 	player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
-	players = [player1, player2, player3]
+	players = [player1, player2]
 
 	bullets1 = Group()
 	bullets2 = Group()
 	bullets3 = Group()
 
-	bullets = [bullets1, bullets2, bullets3]
+	bullets = [bullets1, bullets2]
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
