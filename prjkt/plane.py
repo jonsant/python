@@ -5,8 +5,7 @@ import random
 from random import choice
 from heart import Heart
 from commie import Commie
-
-folder = os.path.dirname(os.path.realpath(__file__))
+import funcs as funcs
 
 class Plane(Sprite):
 	def __init__(self, settings, screen, stats):
@@ -27,7 +26,7 @@ class Plane(Sprite):
 		self.health = self.settings.plane_health
 
 		# set image
-		self.image = pygame.image.load(os.path.join(folder, "images/plane.png"))
+		self.image = pygame.image.load(funcs.find_data_file("images/plane.png"))
 		
 		self.moving_left = False
 		self.moving_right = False

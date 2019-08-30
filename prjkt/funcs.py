@@ -452,3 +452,12 @@ def check_player_commie_collide(settings, players, commies, sb, stats):
 				else:
 					plr.can_take_health = False
 
+def find_data_file(filename):
+	if getattr(sys, 'frozen', False):
+		# The application is frozen
+		datadir = os.path.dirname(sys.executable)
+	else:
+		# The application is not frozen
+		# Change this bit to match where you store your data files:
+		datadir = os.path.dirname(os.path.realpath(__file__))
+	return os.path.join(datadir, filename)

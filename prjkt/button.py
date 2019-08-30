@@ -1,7 +1,6 @@
 import pygame.font
 import os
-
-folder = os.path.dirname(os.path.realpath(__file__))
+import funcs as funcs
 
 class Button():
 	def __init__(self, screen, settings, type_of_button):
@@ -11,7 +10,7 @@ class Button():
 		
 		self.button_type = type_of_button
 		
-		self.image = pygame.image.load(os.path.join(folder, "images/%s_button.png" % str(self.button_type)))
+		self.image = pygame.image.load(funcs.find_data_file("images/%s_button.png" % str(self.button_type)))
 		
 		self.rect = self.image.get_rect()
 		self.rect.center = (0,0)

@@ -1,6 +1,7 @@
 import pygame
 import pygame.font
 import os
+import funcs as funcs
 
 folder = os.path.dirname(os.path.realpath(__file__))
 
@@ -12,9 +13,9 @@ class Settings():
 		self.screen_height = 720
 		self.bg_color = (0,0,0)
 		
-		self.in_game_bg = pygame.image.load(os.path.join(folder, "images/bg.jpg"))
-		self.menu_bg = pygame.image.load(os.path.join(folder, "images/menu_bg.png"))
-		self.settings_bg = pygame.image.load(os.path.join(folder, "images/settings_bg.png"))
+		self.in_game_bg = pygame.image.load(funcs.find_data_file("images/bg.jpg"))
+		self.menu_bg = pygame.image.load(funcs.find_data_file("images/menu_bg.png"))
+		self.settings_bg = pygame.image.load(os.path.join(funcs.find_data_file("images/settings_bg.png")))
 		
 		# Timer settings
 		self.commie_time = 5
@@ -60,7 +61,7 @@ class Settings():
 		# Load existing joystick config if exists
 		if joysticks:
 			try:
-				with open(os.path.join(folder, "controller.txt"), "r") as controller_settings:
+				with open(funcs.find_data_file("controller.txt"), "r") as controller_settings:
 					for idx, line in enumerate(controller_settings):
 						if idx == 0:
 							self.joystick_xaxis = int(line)

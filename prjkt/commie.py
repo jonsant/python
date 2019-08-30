@@ -2,8 +2,7 @@ import pygame
 from pygame.sprite import Sprite
 import os
 import random
-
-folder = os.path.dirname(os.path.realpath(__file__))
+import funcs as funcs
 
 class Commie(Sprite):
     def __init__(self, screen, settings, xpos, ypos):
@@ -18,7 +17,7 @@ class Commie(Sprite):
         #xpos = random.randint(screen.get_rect().left + 10, screen.get_rect().right - 10)
         #ypos = random.randint(screen.get_rect().top + 10, screen.get_rect().bottom - 10)
 
-        self.image = pygame.image.load(os.path.join(folder, "images/commie.png"))
+        self.image = pygame.image.load(funcs.find_data_file("images/commie.png"))
 
         self.rect = self.image.get_rect()
         self.rect.centerx = xpos
