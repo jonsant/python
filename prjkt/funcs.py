@@ -104,13 +104,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					
 			else:
 				if event.button == settings.joystick_a:
-					new_bullet(bullets[bulletGroup], settings, screen, player)
+					players[1].aiming_up = not players[1].aiming_up
 				elif event.button == settings.joystick_b:
-					players[1].aiming_up = True
+					new_bullet(bullets[bulletGroup], settings, screen, player)
 		elif event.type == pygame.JOYBUTTONUP:
 			if stats.in_game:
-				if event.button == settings.joystick_b:
-					players[1].aiming_up = False
+				if event.button == settings.joystick_a:
+					#players[1].aiming_up = False
+					pass
 
 def save_controller_settings(settings):
 	try:
@@ -216,7 +217,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 			initGame(settings, stats, screen, sb, players, bullets, hearts)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
-		players[0].aiming_up = True
+		players[0].aiming_up = not players[0].aiming_up
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
 		players[1].direction = "left"
@@ -230,12 +231,14 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		players[1].moving_down = True
 		players[1].direction = "down"
 	elif event.key == pygame.K_v:
-		players[1].aiming_up = True
+		players[1].aiming_up = not players[1].aiming_up
 	elif event.key == pygame.K_SPACE:
 		new_bullet(bullets[1], settings, screen, players[1])
 	elif event.key == pygame.K_q:
 		if stats.in_game:
 			stats.in_game = False
+		elif stats.in_settings:
+			stats.in_settings = False
 		else:
 			if settings.controller_used:
 				save_controller_settings(settings)
@@ -255,7 +258,8 @@ def check_keyup_events(event, settings, screen, players):
 	elif event.key == pygame.K_DOWN:
 		players[0].moving_down = False
 	elif event.key == pygame.K_BACKSPACE:
-		players[0].aiming_up = False
+		#players[0].aiming_up = False
+		pass
 	elif event.key == pygame.K_a:
 		players[1].moving_left = False
 	elif event.key == pygame.K_d:
@@ -265,7 +269,8 @@ def check_keyup_events(event, settings, screen, players):
 	elif event.key == pygame.K_s:
 		players[1].moving_down = False
 	elif event.key == pygame.K_v:
-		players[1].aiming_up = False
+		#players[1].aiming_up = False
+		pass
 
 def new_bullet(bullet_group, settings, screen, player):
 	bullet = Bullet(settings, screen, player)
@@ -335,6 +340,7 @@ def update_bullets(bullets, screen, players, settings, stats, sb):
 			continue
 	if len(players_alive) == 1:
 		stats.someone_won = True
+		players_alive[0].is_alive = False
 		sb.prep_info_text("Player " + str(players_alive[0].player_num) + " won!")
 
 def update_plane(settings, screen, planes):
@@ -380,7 +386,7 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 					elif type(item) == Commie:
 						items[1].add(item)
 						print("released commie")
-				planes.remove(plane)
+					planes.remove(plane)
 				bullets.remove(bullet) 
 
 def check_player_collide(settings, players):
@@ -405,21 +411,25 @@ def check_player_collide(settings, players):
 				player.moving_down = True
 		
 def check_player_heart_collide(settings, players, hearts, sb, stats):
+	# Check for collisions with hearts for every player
 	for player in players:
+		# Only let player pick up heart if can_take_health
 		if player.can_take_health:
 			collisions = pygame.sprite.spritecollide(player, hearts, True)
 
 			if collisions:
+				# Add to player health
 				if player.health + settings.heart_healing <= 100:
 					player.health += settings.heart_healing
 					sb.prep_health_scores()
 		else:
 			collisions = pygame.sprite.spritecollide(player, hearts, True)
 
-			if collisions:
-				if stats.current_commie.health + settings.heart_healing <= 100:
-					stats.current_commie.health += settings.heart_healing
-					sb.prep_health_scores()
+			if not stats.current_commie == None:
+				if collisions:
+					if stats.current_commie.health + settings.heart_healing <= 100:
+						stats.current_commie.health += settings.heart_healing
+						sb.prep_health_scores()
 
 def check_player_commie_collide(settings, players, commies, sb, stats):
 	for player in players:
@@ -427,6 +437,7 @@ def check_player_commie_collide(settings, players, commies, sb, stats):
 
 		if collisions:
 			stats.current_commie = player
+			sb.prep_health_scores()
 
 			# Make all players except commie unable to gain health
 			for plr in players:

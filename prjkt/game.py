@@ -53,21 +53,32 @@ def game():
 	menu_buttons = [play_button, settings_button, quit_button]
 	
 	#Scoreboard
-	sb = Scoreboard(screen, settings, players)
+	sb = Scoreboard(screen, settings, players, stats)
 	
 	#menu msgs
 	menu_msgs = Menu_Msgs(settings, screen)
 	
 	#clock
-	
 	clock = pygame.time.Clock()
+	dt = 0
+
+	# timers
+	commie_timer = 5
 
 	while True:
-		clock.tick(60)
 		
 		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts)
-		
+
 		if stats.in_game:
+
+			# If commie exists, countdown
+			if not stats.current_commie == None:
+				commie_timer -= dt
+				sb.prep_health_scores(commie_timer)
+				if commie_timer <= 0:
+					stats.current_commie = None
+					commie_timer = settings.commie_time
+					sb.prep_health_scores()
 
 			""" # Spawn hearts
 			if random.randrange(0, 50) < 1:
@@ -100,5 +111,7 @@ def game():
 			# ---
 		
 		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items)
+
+		dt = clock.tick(60) / 1000
 
 game()

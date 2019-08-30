@@ -16,6 +16,9 @@ class Settings():
 		self.menu_bg = pygame.image.load(os.path.join(folder, "images/menu_bg.png"))
 		self.settings_bg = pygame.image.load(os.path.join(folder, "images/settings_bg.png"))
 		
+		# Timer settings
+		self.commie_time = 5
+
 		# Bullet:
 			# Standard
 		self.bullet_speed_factor = 30

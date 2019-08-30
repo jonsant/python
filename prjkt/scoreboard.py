@@ -2,11 +2,12 @@ from pygame.sprite import Group
 import pygame.font
 
 class Scoreboard():
-	def __init__(self, screen, settings, players):
+	def __init__(self, screen, settings, players, stats):
 		
 		self.text_color = (255,255,255)
 		self.font = pygame.font.SysFont(None, 48)
 		
+		self.stats = stats
 		self.screen = screen
 		self.settings = settings
 		self.players = players
@@ -25,17 +26,23 @@ class Scoreboard():
 		self.scoreboard_msg_rect.centerx = self.screen.get_rect().centerx
 		self.scoreboard_msg_rect.bottom = self.screen.get_rect().bottom - 10
 
-	def prep_health_scores(self):
+	def prep_health_scores(self, commie_time=0):
 		for player in self.players:
 			if player.player_num == 1:
-				self.pl1_health_image = self.font.render(str(player.health), True, self.text_color)
+				if commie_time > 0 and self.stats.current_commie.player_num == 1:
+					self.pl1_health_image = self.font.render(str(player.health) + " Commie time: " + str(round(commie_time)), True, self.text_color)
+				else:
+					self.pl1_health_image = self.font.render(str(player.health), True, self.text_color)
 					
 				# Position the health below the health bar.
 				self.pl1_health_rect = self.pl1_health_image.get_rect()
 				self.pl1_health_rect.right = self.pl1_health_rect.right + 20
 				self.pl1_health_rect.top = self.pl1_health_rect.bottom + 10
 			if player.player_num == 2:
-				self.pl2_health_image = self.font.render(str(player.health), True, self.text_color)
+				if commie_time > 0 and self.stats.current_commie.player_num == 2:
+					self.pl2_health_image = self.font.render(str(player.health) + " Commie time: " + str(round(commie_time)), True, self.text_color)
+				else:
+					self.pl2_health_image = self.font.render(str(player.health), True, self.text_color)
 
 				# Position the health below the health bar.
 				self.pl2_health_rect = self.pl2_health_image.get_rect()

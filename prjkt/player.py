@@ -25,6 +25,7 @@ class Player(Sprite):
 		self.health = self.settings.player_health
 		self.can_take_health = True
 		self.aiming_up = False
+		self.is_alive = True
 
 		if self.player_num == 1:
 			self.direction = "right"
