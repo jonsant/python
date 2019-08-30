@@ -323,6 +323,13 @@ def update_bullets(bullets, screen, players, settings, stats, sb):
 		stats.someone_won = True
 		sb.prep_info_text("Player " + str(players_alive[0].player_num) + " won!")
 
+def update_plane(settings, screen, planes):
+	planes.update()
+	# Remove planes outside of screen
+	for plane in planes.copy():
+		if plane.rect.bottom <= (0 - plane.rect.height) or plane.rect.top >= screen.get_rect().bottom or plane.rect.left >= screen.get_rect().right or plane.rect.right <= 0:
+			planes.remove(plane)
+
 def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, settings, stats, sb):
 	# For every player in the list of players, check if there's any collision
 	for player_idx, player in enumerate(players):

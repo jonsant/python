@@ -12,6 +12,7 @@ import pygame.font
 import random
 from heart import Heart
 from commie import Commie
+from plane import Plane
 
 def game():
 	pygame.init()
@@ -42,7 +43,9 @@ def game():
 
 	hearts = Group()
 	commies = Group()
-	items = [hearts, commies]
+	planes = Group()
+
+	items = [hearts, commies, planes]
 	
 	play_button = Button(screen, settings, "play")
 	settings_button = Button(screen, settings, "settings")
@@ -67,20 +70,26 @@ def game():
 		if stats.in_game:
 
 			# Spawn hearts
-			if random.randrange(0, 50) < 1:
+			""" if random.randrange(0, 50) < 1:
 				
-				if len(hearts.sprites()) < 3:
-					heart = Heart(screen, settings)
-					hearts.add(heart)
+					if len(hearts.sprites()) < 3:
+						heart = Heart(screen, settings)
+						hearts.add(heart) """
 
-			# Spawn commies:
+			""" # Spawn commies:
 			if random.randrange(0, 50) < 1:
 				if len(commies.sprites()) == 0 and stats.current_commie == None:
 					commie = Commie(screen, settings)
-					commies.add(commie)
+					commies.add(commie) """
+
+			if random.randrange(0, 50) < 1:
+				if len(planes.sprites()) < 2:
+					plane = Plane(settings, screen)
+					planes.add(plane)
 
 			for player in players:
 				player.update()
+			funcs.update_plane(settings, screen, planes)
 			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 			
 			funcs.check_player_collide(settings, players)

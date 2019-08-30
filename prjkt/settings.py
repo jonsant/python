@@ -28,6 +28,9 @@ class Settings():
 		# Heart:
 		self.heart_healing = 5
 
+		# Plane:
+		self.plane_speed_factor = 15
+
 		# Player settings
 		
 			# Both
