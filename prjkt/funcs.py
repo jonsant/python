@@ -102,11 +102,17 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					settings.buttons_left = 0
 					stats.in_settings = False
 					
-			else:
+			elif stats.in_game:
 				if event.button == settings.joystick_a:
 					players[1].aiming_up = not players[1].aiming_up
 				elif event.button == settings.joystick_b:
 					new_bullet(bullets[bulletGroup], settings, screen, player)
+				elif event.button == settings.joystick_start:
+					stats.paused = not stats.paused
+			else:
+				if event.button == settings.joystick_start:
+					initGame(settings, stats, screen, sb, players, bullets, hearts)
+					stats.in_game = True
 		elif event.type == pygame.JOYBUTTONUP:
 			if stats.in_game:
 				if event.button == settings.joystick_a:

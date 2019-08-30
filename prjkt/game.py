@@ -71,44 +71,49 @@ def game():
 
 		if stats.in_game:
 
-			# If commie exists, countdown
-			if not stats.current_commie == None:
-				commie_timer -= dt
-				sb.prep_health_scores(commie_timer)
-				if commie_timer <= 0:
-					stats.current_commie = None
-					commie_timer = settings.commie_time
-					sb.prep_health_scores()
+			if not stats.paused:
 
-			""" # Spawn hearts
-			if random.randrange(0, 50) < 1:
+				# If commie exists, countdown
+				if not stats.current_commie == None:
+					commie_timer -= dt
+					sb.prep_health_scores(commie_timer)
+					if commie_timer <= 0:
+						stats.current_commie = None
+						commie_timer = settings.commie_time
+						sb.prep_health_scores()
+
+				""" # Spawn hearts
+				if random.randrange(0, 50) < 1:
+					
+						if len(hearts.sprites()) < 3:
+							heart = Heart(screen, settings)
+							hearts.add(heart) """
+
+				""" # Spawn commies:
+				if random.randrange(0, 50) < 1:
+					if len(commies.sprites()) == 0 and stats.current_commie == None:
+						commie = Commie(screen, settings)
+						commies.add(commie) """
 				
-					if len(hearts.sprites()) < 3:
-						heart = Heart(screen, settings)
-						hearts.add(heart) """
+				# Spawn planes
+				if random.randrange(0, 50) < 1:
+					if len(planes.sprites()) < 2:
+						plane = Plane(settings, screen, stats)
+						planes.add(plane)
 
-			""" # Spawn commies:
-			if random.randrange(0, 50) < 1:
-				if len(commies.sprites()) == 0 and stats.current_commie == None:
-					commie = Commie(screen, settings)
-					commies.add(commie) """
-			
-			# Spawn planes
-			if random.randrange(0, 50) < 1:
-				if len(planes.sprites()) < 2:
-					plane = Plane(settings, screen, stats)
-					planes.add(plane)
+				for player in players:
+					player.update()
+				funcs.update_plane(settings, screen, planes)
+				funcs.update_bullets(bullets, screen, players, settings, stats, sb)
+				
+				funcs.check_player_collide(settings, players)
+				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
+				funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
+				funcs.check_player_commie_collide(settings, players, commies, sb, stats)
+				# ---
 
-			for player in players:
-				player.update()
-			funcs.update_plane(settings, screen, planes)
-			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
-			
-			funcs.check_player_collide(settings, players)
-			funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
-			funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
-			funcs.check_player_commie_collide(settings, players, commies, sb, stats)
-			# ---
+			else:
+				pass
 		
 		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items)
 

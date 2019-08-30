@@ -7,3 +7,4 @@ class Stats():
 		self.in_settings = False
 		self.someone_won = False
 		self.current_commie = None
+		self.paused = False
