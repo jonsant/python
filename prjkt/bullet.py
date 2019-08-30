@@ -12,6 +12,7 @@ class Bullet(Sprite):
 		
 		self.settings = settings
 		
+		self.my_creator = player
 		self.player_centerx = player.centerx
 		
 		self.image = pygame.image.load(os.path.join(folder, "images/standard_bullet.png"))

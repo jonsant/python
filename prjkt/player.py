@@ -24,6 +24,7 @@ class Player(Sprite):
 	def initialize_player(self):
 		self.health = self.settings.player_health
 		self.can_take_health = True
+		self.aiming_up = False
 
 		if self.player_num == 1:
 			self.direction = "right"

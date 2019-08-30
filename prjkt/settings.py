@@ -30,6 +30,7 @@ class Settings():
 
 		# Plane:
 		self.plane_speed_factor = 15
+		self.plane_health = 1
 
 		# Player settings
 		

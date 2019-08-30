@@ -7,6 +7,7 @@ from player import Player
 from pygame.sprite import Group
 from heart import Heart
 import os
+from commie import Commie
 
 folder = os.path.dirname(os.path.realpath(__file__))
 
@@ -104,6 +105,12 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			else:
 				if event.button == settings.joystick_a:
 					new_bullet(bullets[bulletGroup], settings, screen, player)
+				elif event.button == settings.joystick_b:
+					players[1].aiming_up = True
+		elif event.type == pygame.JOYBUTTONUP:
+			if stats.in_game:
+				if event.button == settings.joystick_b:
+					players[1].aiming_up = False
 
 def save_controller_settings(settings):
 	try:
@@ -150,6 +157,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts):
 		player.initialize_player()
 
 	stats.someone_won = False
+	stats.current_commie = None
 	sb.reset_scoreboard()
 
 	hearts.empty()
@@ -186,8 +194,6 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts):
 	#stats.in_game = True
 	#print(players)
 
-	
-
 		
 def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts):
 	
@@ -209,6 +215,8 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		else:
 			initGame(settings, stats, screen, sb, players, bullets, hearts)
 			stats.in_game = True
+	elif event.key == pygame.K_BACKSPACE:
+		players[0].aiming_up = True
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
 		players[1].direction = "left"
@@ -221,6 +229,8 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_s:
 		players[1].moving_down = True
 		players[1].direction = "down"
+	elif event.key == pygame.K_v:
+		players[1].aiming_up = True
 	elif event.key == pygame.K_SPACE:
 		new_bullet(bullets[1], settings, screen, players[1])
 	elif event.key == pygame.K_q:
@@ -244,6 +254,8 @@ def check_keyup_events(event, settings, screen, players):
 			players[0].direction = "left" """
 	elif event.key == pygame.K_DOWN:
 		players[0].moving_down = False
+	elif event.key == pygame.K_BACKSPACE:
+		players[0].aiming_up = False
 	elif event.key == pygame.K_a:
 		players[1].moving_left = False
 	elif event.key == pygame.K_d:
@@ -252,6 +264,8 @@ def check_keyup_events(event, settings, screen, players):
 		players[1].moving_up = False
 	elif event.key == pygame.K_s:
 		players[1].moving_down = False
+	elif event.key == pygame.K_v:
+		players[1].aiming_up = False
 
 def new_bullet(bullet_group, settings, screen, player):
 	bullet = Bullet(settings, screen, player)
@@ -337,17 +351,38 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 		if bullet_idx == player_idx:
 			continue
 		else:
-			collisions = pygame.sprite.spritecollide(player, players_bullets, True)
+			collisions = pygame.sprite.spritecollide(player, players_bullets, False)
 			if collisions:
 				if (player.health - settings.bullet_damage) <= 0:
-					
 					player.health = 0
 					sb.prep_health_scores()
 				else:
-					player.health -= settings.bullet_damage
-					sb.prep_health_scores()
+					# get bullet owner & check if aiming_up is true/ if bullets "is_air_bullet" = true
+					for bullet in collisions:
+						if not bullet.my_creator.aiming_up:
+							players_bullets.remove(bullet)
+							player.health -= settings.bullet_damage
+							sb.prep_health_scores()
 				
-	
+def check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets):
+	# For every players bullet group, check for collision with plane
+	for bullet_group in bullets:
+		collisions = pygame.sprite.groupcollide(planes, bullet_group, False, False)
+
+		for plane, bullets in collisions.items():
+			#print(str(bullet[0].my_creator.aiming_up))
+			for bullet in bullets[:]:
+				print(bullet)
+				if bullet.my_creator.aiming_up:
+					item = plane.release_item(plane.centerx, plane.centery)
+					if type(item) == Heart:
+						items[0].add(item)
+					elif type(item) == Commie:
+						items[1].add(item)
+						print("released commie")
+				planes.remove(plane)
+				bullets.remove(bullet) 
+
 def check_player_collide(settings, players):
 	hit = players[0].rect.colliderect(players[1].rect)
 	if hit:
@@ -399,3 +434,4 @@ def check_player_commie_collide(settings, players, commies, sb, stats):
 					continue
 				else:
 					plr.can_take_health = False
+

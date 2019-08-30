@@ -2,14 +2,19 @@ import pygame
 from pygame.sprite import Sprite
 import os
 import random
+from random import choice
+from heart import Heart
+from commie import Commie
 
 folder = os.path.dirname(os.path.realpath(__file__))
 
 class Plane(Sprite):
-	def __init__(self, settings, screen):
+	def __init__(self, settings, screen, stats):
 		super(Plane, self).__init__()
 		
 		self.screen = screen
+
+		self.stats = stats
 
 		self.sr = screen.get_rect()
 		
@@ -19,8 +24,9 @@ class Plane(Sprite):
 		
 
 	def initialize_plane(self):
-		self.health = self.settings.player_health
+		self.health = self.settings.plane_health
 
+		# set image
 		self.image = pygame.image.load(os.path.join(folder, "images/plane.png"))
 		
 		self.moving_left = False
@@ -164,3 +170,11 @@ class Plane(Sprite):
 		"""Draw the ship at its current location."""
 		self.screen.blit(self.img, self.rect)
 		
+	def release_item(self, xpos, ypos):
+		# choose a random item (if commie doesn't exist already)
+		if self.stats.current_commie == None:
+			self.classes = (Heart, Commie)
+			self.item = random.choice(self.classes)(self.screen, self.settings, xpos, ypos)
+			return self.item
+		else:
+			return Heart(self.screen, self.settings, xpos, ypos)

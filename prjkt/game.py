@@ -69,8 +69,8 @@ def game():
 		
 		if stats.in_game:
 
-			# Spawn hearts
-			""" if random.randrange(0, 50) < 1:
+			""" # Spawn hearts
+			if random.randrange(0, 50) < 1:
 				
 					if len(hearts.sprites()) < 3:
 						heart = Heart(screen, settings)
@@ -81,10 +81,11 @@ def game():
 				if len(commies.sprites()) == 0 and stats.current_commie == None:
 					commie = Commie(screen, settings)
 					commies.add(commie) """
-
+			
+			# Spawn planes
 			if random.randrange(0, 50) < 1:
 				if len(planes.sprites()) < 2:
-					plane = Plane(settings, screen)
+					plane = Plane(settings, screen, stats)
 					planes.add(plane)
 
 			for player in players:
@@ -93,6 +94,7 @@ def game():
 			funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 			
 			funcs.check_player_collide(settings, players)
+			funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
 			funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
 			funcs.check_player_commie_collide(settings, players, commies, sb, stats)
 			# ---
