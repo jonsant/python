@@ -10,7 +10,7 @@ class Button():
 		
 		self.button_type = type_of_button
 		
-		self.image = pygame.image.load(funcs.find_data_file("images/%s_button.png" % str(self.button_type)))
+		self.image = pygame.image.load(funcs.find_data_file("%s_button.png" % str(self.button_type)))
 		
 		self.rect = self.image.get_rect()
 		self.rect.center = (0,0)

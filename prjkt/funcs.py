@@ -9,7 +9,15 @@ from heart import Heart
 import os
 from commie import Commie
 
-folder = os.path.dirname(os.path.realpath(__file__))
+_sound_library = {}
+def play_sound(path):
+	global _sound_library
+	sound = _sound_library.get(path)
+	if sound == None:
+		canonicalized_path = path.replace('/', os.sep).replace('\\', os.sep)
+		sound = pygame.mixer.Sound(canonicalized_path)
+		_sound_library[path] = sound
+	sound.play()
 
 def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts):
 	for event in pygame.event.get():
@@ -104,11 +112,16 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					
 			elif stats.in_game:
 				if event.button == settings.joystick_a:
-					players[1].aiming_up = not players[1].aiming_up
+					if stats.in_game:
+						if not stats.paused:
+							new_bullet(bullets[bulletGroup], settings, screen, player)
 				elif event.button == settings.joystick_b:
-					new_bullet(bullets[bulletGroup], settings, screen, player)
+					if stats.in_game:
+						if not stats.paused:
+							play_sound("robot.wav")
+							players[1].aiming_up = not players[1].aiming_up
 				elif event.button == settings.joystick_start:
-					stats.paused = not stats.paused
+					pause_and_start(stats)
 			else:
 				if event.button == settings.joystick_start:
 					initGame(settings, stats, screen, sb, players, bullets, hearts)
@@ -119,9 +132,13 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					#players[1].aiming_up = False
 					pass
 
+def pause_and_start(stats):
+	stats.paused = not stats.paused
+	play_sound("pause.wav")
+
 def save_controller_settings(settings):
 	try:
-		with open(os.path.join(folder, "controller.txt"), "w") as controller_settings:
+		with open(find_data_file("controller.txt"), "w") as controller_settings:
 			controller_settings.write(str(settings.joystick_xaxis) + "\n")
 			controller_settings.write(str(settings.joystick_yaxis) + "\n")
 			controller_settings.write(str(settings.joystick_select) + "\n")
@@ -137,6 +154,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
 	
 		if btn_clicked:
+			play_sound("button.wav")
 			if not stats.in_game:
 				if btn.button_type == "play":
 
@@ -159,6 +177,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 					stats.in_game = False
 					
 def initGame(settings, stats, screen, sb, players, bullets, hearts):
+	pygame.mixer.music.play(-1)
 
 	for player in players:
 		player.initialize_player()
@@ -218,12 +237,16 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		#players[0].direction = "down"
 	elif event.key == pygame.K_RETURN:
 		if stats.in_game:
-			new_bullet(bullets[0], settings, screen, players[0])
+			if not stats.paused:
+				new_bullet(bullets[0], settings, screen, players[0])
 		else:
 			initGame(settings, stats, screen, sb, players, bullets, hearts)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
-		players[0].aiming_up = not players[0].aiming_up
+		if stats.in_game:
+			if not stats.paused:
+				play_sound("robot.wav")
+				players[0].aiming_up = not players[0].aiming_up
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
 		players[1].direction = "left"
@@ -237,12 +260,19 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		players[1].moving_down = True
 		players[1].direction = "down"
 	elif event.key == pygame.K_v:
-		players[1].aiming_up = not players[1].aiming_up
+		if stats.in_game:
+			if not stats.paused:
+				play_sound("robot.wav")
+				players[1].aiming_up = not players[1].aiming_up
 	elif event.key == pygame.K_SPACE:
-		new_bullet(bullets[1], settings, screen, players[1])
+		if stats.in_game:
+			if not stats.paused:
+				new_bullet(bullets[1], settings, screen, players[1])
 	elif event.key == pygame.K_q:
+		play_sound("button.wav")
 		if stats.in_game:
 			stats.in_game = False
+			pygame.mixer.music.play(-1)
 		elif stats.in_settings:
 			stats.in_settings = False
 		else:
@@ -285,7 +315,10 @@ def new_bullet(bullet_group, settings, screen, player):
 
 def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items):
 	if stats.in_game:
-		screen.blit(settings.in_game_bg,(0,0))
+		if stats.current_commie == None:
+			screen.blit(settings.in_game_bg,(0,0))
+		else:
+			screen.blit(settings.in_game_commie_bg, (0,0))
 		for player in players:
 			player.blitme()
 		
@@ -365,13 +398,16 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 		else:
 			collisions = pygame.sprite.spritecollide(player, players_bullets, False)
 			if collisions:
-				if (player.health - settings.bullet_damage) <= 0:
-					player.health = 0
-					sb.prep_health_scores()
-				else:
-					# get bullet owner & check if aiming_up is true/ if bullets "is_air_bullet" = true
-					for bullet in collisions:
-						if not bullet.my_creator.aiming_up:
+				# get bullet owner & check if aiming_up is true/ if bullets "is_air_bullet" = true
+				for bullet in collisions:
+					
+					if not bullet.my_creator.aiming_up:
+						if (player.health - settings.bullet_damage) <= 0:
+							play_sound("hit.wav")
+							player.health = 0
+							sb.prep_health_scores()
+						else:
+							play_sound("hit.wav")
 							players_bullets.remove(bullet)
 							player.health -= settings.bullet_damage
 							sb.prep_health_scores()
@@ -384,14 +420,12 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 		for plane, bullets in collisions.items():
 			#print(str(bullet[0].my_creator.aiming_up))
 			for bullet in bullets[:]:
-				print(bullet)
 				if bullet.my_creator.aiming_up:
 					item = plane.release_item(plane.centerx, plane.centery)
 					if type(item) == Heart:
 						items[0].add(item)
 					elif type(item) == Commie:
 						items[1].add(item)
-						print("released commie")
 					planes.remove(plane)
 				bullets.remove(bullet) 
 
@@ -424,6 +458,7 @@ def check_player_heart_collide(settings, players, hearts, sb, stats):
 			collisions = pygame.sprite.spritecollide(player, hearts, True)
 
 			if collisions:
+				play_sound("blip.wav")
 				# Add to player health
 				if player.health + settings.heart_healing <= 100:
 					player.health += settings.heart_healing
@@ -433,6 +468,7 @@ def check_player_heart_collide(settings, players, hearts, sb, stats):
 
 			if not stats.current_commie == None:
 				if collisions:
+					play_sound("blip.wav")
 					if stats.current_commie.health + settings.heart_healing <= 100:
 						stats.current_commie.health += settings.heart_healing
 						sb.prep_health_scores()
@@ -442,15 +478,21 @@ def check_player_commie_collide(settings, players, commies, sb, stats):
 		collisions = pygame.sprite.spritecollide(player, commies, True)
 
 		if collisions:
-			stats.current_commie = player
-			sb.prep_health_scores()
 
-			# Make all players except commie unable to gain health
-			for plr in players:
-				if plr.player_num == player.player_num:
-					continue
-				else:
-					plr.can_take_health = False
+			if stats.current_commie == None:
+
+				commies.empty()
+			
+				play_sound("flirp.wav")
+				stats.current_commie = player
+				sb.prep_health_scores()
+
+				# Make all players except commie unable to gain health
+				for plr in players:
+					if plr.player_num == player.player_num:
+						continue
+					else:
+						plr.can_take_health = False
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):
@@ -459,5 +501,8 @@ def find_data_file(filename):
 	else:
 		# The application is not frozen
 		# Change this bit to match where you store your data files:
-		datadir = os.path.dirname(os.path.realpath(__file__))
+		if filename == "controller.txt":
+			datadir = os.path.dirname(os.path.realpath(filename))
+		else:
+			datadir = os.path.dirname(os.path.realpath("images/" + filename))
 	return os.path.join(datadir, filename)

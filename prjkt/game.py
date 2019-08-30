@@ -8,15 +8,22 @@ from button import Button
 from menu_msgs import Menu_Msgs
 from pygame.sprite import Group
 from scoreboard import Scoreboard
-import pygame.font
+import pygame.font 
 import random
 from heart import Heart
 from commie import Commie
 from plane import Plane
 
 def game():
+
+	# Init mixer before pygame to prevent delay
+	pygame.mixer.pre_init(44100, -16, 1, 512)
+	pygame.mixer.init()
 	pygame.init()
-	
+
+	pygame.mixer.music.load("song.mp3")
+	pygame.mixer.music.play(-1)
+
 	#init joystick(s)
 	pygame.joystick.init()
 	joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
@@ -32,7 +39,7 @@ def game():
 	
 	player1 = Player(settings, screen, 1, settings.player1_start_pos)
 	player2 = Player(settings, screen, 2, settings.player2_start_pos)
-	player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
+	#player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
 	players = [player1, player2]
 
 	bullets1 = Group()
@@ -63,24 +70,24 @@ def game():
 	dt = 0
 
 	# timers
-	commie_timer = 5
+	commie_timer = settings.commie_time
 
 	while True:
 		
 		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts)
 
 		if stats.in_game:
-
 			if not stats.paused:
-
+				pygame.mixer.music.unpause()
 				# If commie exists, countdown
 				if not stats.current_commie == None:
 					commie_timer -= dt
-					sb.prep_health_scores(commie_timer)
+					sb.prep_player_info(commie_timer)
 					if commie_timer <= 0:
+						funcs.play_sound("flirp.wav")
 						stats.current_commie = None
 						commie_timer = settings.commie_time
-						sb.prep_health_scores()
+						sb.prep_player_info()
 
 				""" # Spawn hearts
 				if random.randrange(0, 50) < 1:
@@ -113,7 +120,8 @@ def game():
 				# ---
 
 			else:
-				pass
+				pygame.mixer.music.pause()
+				continue
 		
 		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items)
 

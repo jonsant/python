@@ -17,7 +17,7 @@ class Heart(Sprite):
         #self.xpos = random.randint(screen.get_rect().left + 10, screen.get_rect().right - 10)
         #self.ypos = random.randint(screen.get_rect().top + 10, screen.get_rect().bottom - 10)
 
-        self.image = pygame.image.load(funcs.find_data_file("images/heart.png"))
+        self.image = pygame.image.load(funcs.find_data_file("meds.png"))
 
         self.rect = self.image.get_rect()
         self.rect.centerx = self.xpos

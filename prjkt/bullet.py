@@ -1,8 +1,7 @@
 import pygame
 from pygame.sprite import Sprite
 import os
-
-folder = os.path.dirname(os.path.realpath(__file__))
+import funcs as funcs
 
 class Bullet(Sprite):
 	def __init__(self, settings, screen, player):
@@ -14,8 +13,13 @@ class Bullet(Sprite):
 		
 		self.my_creator = player
 		self.player_centerx = player.centerx
+
+		if self.my_creator.aiming_up:
+			funcs.play_sound("missile.wav")
+		else:
+			funcs.play_sound("shoot.wav")
 		
-		self.image = pygame.image.load(os.path.join(folder, "images/standard_bullet.png"))
+		self.image = pygame.image.load(funcs.find_data_file("standard_bullet.png"))
 		
 		self.rect = self.image.get_rect()
 		

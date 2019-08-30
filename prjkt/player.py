@@ -28,15 +28,15 @@ class Player(Sprite):
 
 		if self.player_num == 1:
 			self.direction = "right"
-			self.image = pygame.image.load(funcs.find_data_file("images/tank%d.png" % self.player_num))
+			self.image = pygame.image.load(funcs.find_data_file("tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 90)
 		elif self.player_num == 2:
 			self.direction = "left"
-			self.image = pygame.image.load(os.path.join(funcs.find_data_file("images/tank%d.png" % self.player_num)))
+			self.image = pygame.image.load(os.path.join(funcs.find_data_file("tank%d.png" % self.player_num)))
 			self.img = pygame.transform.rotate(self.image, 270)
 		elif self.player_num == 3:
 			self.direction = "left"
-			self.image = pygame.image.load(funcs.find_data_file("images/tank%d.png" % self.player_num))
+			self.image = pygame.image.load(funcs.find_data_file("tank%d.png" % self.player_num))
 			self.img = pygame.transform.rotate(self.image, 270)
 			
 			

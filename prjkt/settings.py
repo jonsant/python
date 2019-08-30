@@ -13,16 +13,17 @@ class Settings():
 		self.screen_height = 720
 		self.bg_color = (0,0,0)
 		
-		self.in_game_bg = pygame.image.load(funcs.find_data_file("images/bg.jpg"))
-		self.menu_bg = pygame.image.load(funcs.find_data_file("images/menu_bg.png"))
-		self.settings_bg = pygame.image.load(os.path.join(funcs.find_data_file("images/settings_bg.png")))
+		self.in_game_bg = pygame.image.load(funcs.find_data_file("bg.jpg"))
+		self.menu_bg = pygame.image.load(funcs.find_data_file("menu_bg.png"))
+		self.settings_bg = pygame.image.load(os.path.join(funcs.find_data_file("settings_bg.png")))
+		self.in_game_commie_bg = pygame.image.load(funcs.find_data_file("commie_bg.jpg"))
 		
 		# Timer settings
-		self.commie_time = 5
+		self.commie_time = 20
 
 		# Bullet:
 			# Standard
-		self.bullet_speed_factor = 30
+		self.bullet_speed_factor = 35
 		self.bullet_damage = 5
 		
 			# Big
@@ -40,7 +41,7 @@ class Settings():
 		
 			# Both
 		self.player_health = 100
-		self.player_speed = 5
+		self.player_speed = 8
 		self.player_health_color = (40,255,50)
 		
 			# Player1

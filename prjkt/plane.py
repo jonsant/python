@@ -25,8 +25,10 @@ class Plane(Sprite):
 	def initialize_plane(self):
 		self.health = self.settings.plane_health
 
+		funcs.play_sound("plane.wav")
+
 		# set image
-		self.image = pygame.image.load(funcs.find_data_file("images/plane.png"))
+		self.image = pygame.image.load(funcs.find_data_file("plane.png"))
 		
 		self.moving_left = False
 		self.moving_right = False

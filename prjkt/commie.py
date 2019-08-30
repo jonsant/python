@@ -17,7 +17,7 @@ class Commie(Sprite):
         #xpos = random.randint(screen.get_rect().left + 10, screen.get_rect().right - 10)
         #ypos = random.randint(screen.get_rect().top + 10, screen.get_rect().bottom - 10)
 
-        self.image = pygame.image.load(funcs.find_data_file("images/commie.png"))
+        self.image = pygame.image.load(funcs.find_data_file("commie.png"))
 
         self.rect = self.image.get_rect()
         self.rect.centerx = xpos
