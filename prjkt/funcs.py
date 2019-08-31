@@ -19,7 +19,7 @@ def play_sound(path):
 		_sound_library[path] = sound
 	sound.play()
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			if settings.controller_used:
@@ -27,14 +27,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players)
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -124,7 +124,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					pause_and_start(stats)
 			else:
 				if event.button == settings.joystick_start:
-					initGame(settings, stats, screen, sb, players, bullets, hearts)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
 					stats.in_game = True
 		elif event.type == pygame.JOYBUTTONUP:
 			if stats.in_game:
@@ -133,8 +133,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					pass
 
 def pause_and_start(stats):
-	stats.paused = not stats.paused
-	play_sound("pause.wav")
+	if not stats.game_over:
+		stats.paused = not stats.paused
+		play_sound("pause.wav")
+	else:
+		pygame.mixer.music.load("song.mp3")
+		pygame.mixer.music.play(-1)
+		play_sound("button.wav")
+		stats.in_game = False
 
 def save_controller_settings(settings):
 	try:
@@ -148,7 +154,7 @@ def save_controller_settings(settings):
 	except FileNotFoundError:
 		pass
 
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -158,7 +164,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 			if not stats.in_game:
 				if btn.button_type == "play":
 
-					initGame(settings, stats, screen, sb, players, bullets, hearts)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -169,24 +175,30 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 					else:
 						settings.show_main_msg = True
 				elif btn.button_type == "quit":
-					if settings.controller_used:
-						save_controller_settings(settings)
-					sys.exit(0)
+					if stats.in_settings:
+						stats.in_settings = False
+					else:
+						if settings.controller_used:
+							save_controller_settings(settings)
+						sys.exit(0)
 			elif stats.in_game and stats.someone_won:
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb, players, bullets, hearts):
+def initGame(settings, stats, screen, sb, players, bullets, hearts, commies):
+	pygame.mixer.music.load("song.mp3")
 	pygame.mixer.music.play(-1)
 
 	for player in players:
 		player.initialize_player()
 
+	stats.game_over = False
 	stats.someone_won = False
 	stats.current_commie = None
 	sb.reset_scoreboard()
 
 	hearts.empty()
+	commies.empty()
 	
 	#players = []
 	#bullets = []
@@ -221,7 +233,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts):
 	#print(players)
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -240,7 +252,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 			if not stats.paused:
 				new_bullet(bullets[0], settings, screen, players[0])
 		else:
-			initGame(settings, stats, screen, sb, players, bullets, hearts)
+			initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
 		if stats.in_game:
@@ -272,6 +284,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		play_sound("button.wav")
 		if stats.in_game:
 			stats.in_game = False
+			pygame.mixer.music.load("song.mp3")
 			pygame.mixer.music.play(-1)
 		elif stats.in_settings:
 			stats.in_settings = False
@@ -347,6 +360,10 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 		screen.blit(settings.settings_bg, (0,0))
 		
 		menu_msgs.show_settings_msgs()
+
+		for btn in menu_buttons:
+				if btn.button_type == "quit":
+					btn.draw_quit_button()
 		
 		pygame.display.flip()
 		
@@ -407,7 +424,11 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 					
 					if not bullet.my_creator.aiming_up:
 						if (player.health - settings.bullet_damage) <= 0:
+							if not stats.current_commie == None and stats.current_commie == bullet.my_creator:
+								pygame.mixer.music.load("commie.mp3")
+								pygame.mixer.music.play(-1)
 							play_sound("hit.wav")
+							stats.game_over = True
 							player.health = 0
 							sb.prep_health_scores()
 						else:
@@ -532,7 +553,14 @@ def check_player_wall_collide(settings, screen, players, walls):
 
 def check_bullet_wall_collide(settings, screen, bullets, walls):
 	for bullet_group in bullets:
-		collisions = pygame.sprite.groupcollide(bullet_group, walls, True, False)
+		collisions = pygame.sprite.groupcollide(walls, bullet_group, False, False)
+
+		for wall, bullets in collisions.items():
+			for bullet in bullets[:]:
+				if bullet.my_creator.aiming_up:
+					continue
+				else:
+					bullet_group.remove(bullet)
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):

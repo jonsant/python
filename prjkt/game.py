@@ -55,14 +55,18 @@ def game():
 	walls = Group()
 	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom - 150)
 	wall2 = Wall(screen, settings, screen.get_rect().right - 150, screen.get_rect().bottom - 150)
+	wall3 = Wall(screen, settings, screen.get_rect().width / 2 - 110, screen.get_rect().height / 2 - 180)
+	wall4 = Wall(screen, settings, screen.get_rect().width / 2 + 200, screen.get_rect().height / 2 + 20)
 	walls.add(wall)
 	walls.add(wall2)
+	walls.add(wall3)
+	walls.add(wall4)
 
 	items = [hearts, commies, planes]
 	
-	play_button = Button(screen, settings, "play")
-	settings_button = Button(screen, settings, "settings")
-	quit_button = Button(screen, settings, "quit")
+	play_button = Button(screen, settings, stats, "play")
+	settings_button = Button(screen, settings, stats, "settings")
+	quit_button = Button(screen, settings, stats, "quit")
 	menu_buttons = [play_button, settings_button, quit_button]
 	
 	#Scoreboard
@@ -80,18 +84,20 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies)
 
 		if stats.in_game:
 			if not stats.paused:
 				pygame.mixer.music.unpause()
 				# If commie exists, countdown
-				if not stats.current_commie == None:
+				if not stats.current_commie == None and not stats.game_over:
 					commie_timer -= dt
 					sb.prep_player_info(commie_timer)
 					if commie_timer <= 0:
 						funcs.play_sound("flirp.wav")
 						stats.current_commie = None
+						for player in players:
+							player.can_take_health = True
 						commie_timer = settings.commie_time
 						sb.prep_player_info()
 
@@ -114,8 +120,9 @@ def game():
 						plane = Plane(settings, screen, stats)
 						planes.add(plane)
 
-				for player in players:
-					player.update()
+				if not stats.game_over:
+					for player in players:
+						player.update()
 				funcs.update_plane(settings, screen, planes)
 				funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 				

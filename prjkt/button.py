@@ -3,9 +3,10 @@ import os
 import funcs as funcs
 
 class Button():
-	def __init__(self, screen, settings, type_of_button):
+	def __init__(self, screen, settings, stats, type_of_button):
 		self.screen = screen
-		
+		self.stats = stats
+
 		self.font = pygame.font.SysFont(None, 48)
 		
 		self.button_type = type_of_button
@@ -23,6 +24,10 @@ class Button():
 		self.screen.blit(self.image, self.rect)
 		
 	def draw_quit_button(self):
-		self.rect.center = (self.screen.get_rect().centerx, self.screen.get_rect().centery)
-		self.screen.blit(self.image, self.rect)
+		if self.stats.in_settings:
+			self.rect.center = (self.screen.get_rect().left + 150, self.screen.get_rect().bottom - 80)
+			self.screen.blit(self.image, self.rect)
+		else:	
+			self.rect.center = (self.screen.get_rect().centerx, self.screen.get_rect().centery)
+			self.screen.blit(self.image, self.rect)
 

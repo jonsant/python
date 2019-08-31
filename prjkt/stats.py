@@ -8,3 +8,4 @@ class Stats():
 		self.someone_won = False
 		self.current_commie = None
 		self.paused = False
+		self.game_over = False
