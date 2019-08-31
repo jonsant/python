@@ -313,14 +313,18 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls):
 	if stats.in_game:
 		if stats.current_commie == None:
 			screen.blit(settings.in_game_bg,(0,0))
 		else:
 			screen.blit(settings.in_game_commie_bg, (0,0))
+
 		for player in players:
 			player.blitme()
+
+		for wa in walls.sprites():
+			wa.blitme()
 		
 		for players_bullets in bullets:
 			for bullet in players_bullets.sprites():
@@ -432,20 +436,25 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 def check_player_collide(settings, players):
 	hit = players[0].rect.colliderect(players[1].rect)
 	if hit:
-		for player in players:	
-			if player.moving_right:
+		for player in players:
+			if player.moving_up and player.moving_right:
+				player.moving_up = False
+				player.moving_right = False
+				player.centerx -= 10
+				player.centery += 10
+			elif player.moving_right:
 				player.moving_right = False
 				player.centerx -= 10
 				player.moving_right = True
-			if player.moving_left:
+			elif player.moving_left:
 				player.moving_left = False
 				player.centerx += 10
 				player.moving_left = True
-			if player.moving_up:
+			elif player.moving_up:
 				player.moving_up = False
 				player.centerx += 10
 				player.moving_up = True
-			if player.moving_down:
+			elif player.moving_down:
 				player.moving_down = False
 				player.centerx -= 10
 				player.moving_down = True
@@ -493,6 +502,37 @@ def check_player_commie_collide(settings, players, commies, sb, stats):
 						continue
 					else:
 						plr.can_take_health = False
+
+def check_player_wall_collide(settings, screen, players, walls):
+	for player in players:
+		collisions = pygame.sprite.spritecollide(player, walls, False)
+
+		if collisions:
+			if player.moving_up and player.moving_right:
+				player.moving_up = False
+				player.moving_right = False
+				player.centerx -= 10
+				player.centery += 10
+			elif player.moving_right:
+				player.moving_right = False
+				player.centerx -= 10
+				player.moving_right = True
+			elif player.moving_left:
+				player.moving_left = False
+				player.centerx += 10
+				player.moving_left = True
+			elif player.moving_up:
+				player.moving_up = False
+				player.centerx += 10
+				player.moving_up = True
+			elif player.moving_down:
+				player.moving_down = False
+				player.centerx -= 10
+				player.moving_down = True
+
+def check_bullet_wall_collide(settings, screen, bullets, walls):
+	for bullet_group in bullets:
+		collisions = pygame.sprite.groupcollide(bullet_group, walls, True, False)
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):

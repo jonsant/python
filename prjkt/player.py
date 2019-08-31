@@ -27,13 +27,13 @@ class Player(Sprite):
 		self.is_alive = True
 
 		if self.player_num == 1:
-			self.direction = "right"
+			self.direction = "up"
 			self.image = pygame.image.load(funcs.find_data_file("tank%d.png" % self.player_num))
-			self.img = pygame.transform.rotate(self.image, 90)
+			self.img = pygame.transform.rotate(self.image, 180)
 		elif self.player_num == 2:
-			self.direction = "left"
+			self.direction = "up"
 			self.image = pygame.image.load(os.path.join(funcs.find_data_file("tank%d.png" % self.player_num)))
-			self.img = pygame.transform.rotate(self.image, 270)
+			self.img = pygame.transform.rotate(self.image, 180)
 		elif self.player_num == 3:
 			self.direction = "left"
 			self.image = pygame.image.load(funcs.find_data_file("tank%d.png" % self.player_num))

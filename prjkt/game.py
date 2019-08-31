@@ -13,6 +13,7 @@ import random
 from heart import Heart
 from commie import Commie
 from plane import Plane
+from wall import Wall
 
 def game():
 
@@ -51,6 +52,11 @@ def game():
 	hearts = Group()
 	commies = Group()
 	planes = Group()
+	walls = Group()
+	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom - 150)
+	wall2 = Wall(screen, settings, screen.get_rect().right - 150, screen.get_rect().bottom - 150)
+	walls.add(wall)
+	walls.add(wall2)
 
 	items = [hearts, commies, planes]
 	
@@ -115,6 +121,8 @@ def game():
 				
 				funcs.check_player_collide(settings, players)
 				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
+				funcs.check_player_wall_collide(settings, screen, players, walls)
+				funcs.check_bullet_wall_collide(settings, screen, bullets, walls)
 				funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
 				funcs.check_player_commie_collide(settings, players, commies, sb, stats)
 				# ---
@@ -123,7 +131,7 @@ def game():
 				pygame.mixer.music.pause()
 				continue
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls)
 
 		dt = clock.tick(60) / 1000
 

@@ -45,11 +45,11 @@ class Settings():
 		self.player_health_color = (40,255,50)
 		
 			# Player1
-		self.player1_start_pos = pygame.Rect(300, 300,97,72)
+		self.player1_start_pos = pygame.Rect(10, 600,97,72)
 		self.player1_joystick_id = 0
 		
 			# Player2
-		self.player2_start_pos = pygame.Rect(800, 300, 97,72)
+		self.player2_start_pos = pygame.Rect(1175, 595, 97,72)
 		
 		# Controller
 		self.joystick_xaxis = None
