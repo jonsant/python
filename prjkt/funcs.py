@@ -427,10 +427,10 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 		else:
 			collisions = pygame.sprite.spritecollide(player, players_bullets, False)
 			if collisions:
-				# get bullet owner & check if aiming_up is true/ if bullets "is_air_bullet" = true
+				# get bullet owner & check if bullets "is_missile" = true
 				for bullet in collisions:
 					
-					if not bullet.my_creator.aiming_up:
+					if not bullet.is_missile:
 						if (player.health - settings.bullet_damage) <= 0:
 							if not stats.current_commie == None and stats.current_commie == bullet.my_creator:
 								pygame.mixer.music.load("commie.mp3")
@@ -451,9 +451,8 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 		collisions = pygame.sprite.groupcollide(planes, bullet_group, False, False)
 
 		for plane, bullets in collisions.items():
-			#print(str(bullet[0].my_creator.aiming_up))
 			for bullet in bullets[:]:
-				if bullet.my_creator.aiming_up:
+				if bullet.is_missile:
 					item = plane.release_item(plane.centerx, plane.centery)
 					if type(item) == Heart:
 						items[0].add(item)
@@ -608,7 +607,7 @@ def check_bullet_wall_collide(settings, screen, bullets, walls):
 
 		for wall, bullets in collisions.items():
 			for bullet in bullets[:]:
-				if bullet.my_creator.aiming_up:
+				if bullet.is_missile:
 					continue
 				else:
 					bullet_group.remove(bullet)
