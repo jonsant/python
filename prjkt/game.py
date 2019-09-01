@@ -50,6 +50,8 @@ def game():
 
 	bullets = [bullets1, bullets2]
 
+	explos = []
+
 	hearts = Group()
 	commies = Group()
 	planes = Group()
@@ -102,7 +104,7 @@ def game():
 						stats.current_commie = None
 						for player in players:
 							player.can_take_health = True
-						commie_timer = settings.commie_time
+						stats.commie_timer = settings.commie_time
 						sb.prep_player_info()
 
 				""" # Spawn hearts
@@ -130,12 +132,13 @@ def game():
 				funcs.update_plane(settings, screen, planes)
 				funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 				funcs.update_doors(hq_doors)
+				funcs.update_explos(explos, dt)
 				
 				funcs.check_player_collide(settings, players)
-				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
+				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets, explos)
 				funcs.check_player_wall_collide(settings, screen, players, walls)
 				funcs.check_bullet_wall_collide(settings, screen, bullets, walls)
-				funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
+				funcs.check_player_heart_collide(settings, players, hearts, sb, stats, screen)
 				funcs.check_player_commie_collide(settings, players, commies, sb, stats)
 				funcs.check_player_door_collide(settings, stats, players, hq_doors)
 				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
@@ -145,7 +148,7 @@ def game():
 				pygame.mixer.music.pause()
 				continue
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos)
 
 		dt = clock.tick(60) / 1000
 

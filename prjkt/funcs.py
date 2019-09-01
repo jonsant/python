@@ -8,6 +8,8 @@ from pygame.sprite import Group
 from heart import Heart
 import os
 from commie import Commie
+from explosion import ExplosionSprite
+from heart import Heart
 
 _sound_library = {}
 def play_sound(path):
@@ -327,7 +329,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos):
 	if stats.in_game:
 		if stats.current_commie == None:
 			screen.blit(settings.in_game_bg,(0,0))
@@ -357,6 +359,9 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 		for itemGroup in items:
 			for item in itemGroup.sprites():
 				item.draw_item()
+
+		for exp in explos:
+			exp.draw(screen)
 
 		pygame.display.flip()
 	
@@ -418,6 +423,17 @@ def update_plane(settings, screen, planes):
 		if plane.rect.bottom <= (0 - plane.rect.height) or plane.rect.top >= screen.get_rect().bottom or plane.rect.left >= screen.get_rect().right or plane.rect.right <= 0:
 			planes.remove(plane)
 
+def update_explos(explos, dt):
+	if explos:
+		try:
+			for idx, exp in enumerate(explos[:]):
+				for ex in exp:
+					if ex.index >= 8:
+						del explos[idx]
+				exp.update(dt)
+		except:
+			pass
+
 def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, settings, stats, sb):
 	# For every player in the list of players, check if there's any collision
 	for player_idx, player in enumerate(players):
@@ -445,7 +461,7 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 							player.health -= settings.bullet_damage
 							sb.prep_health_scores()
 				
-def check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets):
+def check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets, explos):
 	# For every players bullet group, check for collision with plane
 	for bullet_group in bullets:
 		collisions = pygame.sprite.groupcollide(planes, bullet_group, False, False)
@@ -458,6 +474,9 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 						items[0].add(item)
 					elif type(item) == Commie:
 						items[1].add(item)
+					newExplo = ExplosionSprite(screen, plane.rect)
+					expl = Group(newExplo)
+					explos.append(expl)
 					planes.remove(plane)
 				bullets.remove(bullet) 
 
@@ -524,13 +543,14 @@ def check_player_door_collide(settings, stats, players, hq_doors):
 def check_bullet_door_collide(settings, stats, bullets, hq_doors):
 	for door in hq_doors:
 		for bullet_group in bullets:
-			collisions = pygame.sprite.spritecollideany(door, bullet_group)
+			bullet = pygame.sprite.spritecollideany(door, bullet_group)
 			
-			if collisions:
-				bullet_group.remove(collisions)
+			if bullet:
+				if not bullet.is_missile:
+					bullet_group.remove(bullet)
 
 
-def check_player_heart_collide(settings, players, hearts, sb, stats):
+def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 	# Check for collisions with hearts for every player
 	for player in players:
 		# Only let player pick up heart if can_take_health
@@ -549,9 +569,11 @@ def check_player_heart_collide(settings, players, hearts, sb, stats):
 			if not stats.current_commie == None:
 				if collisions:
 					play_sound("blip.wav")
-					if stats.current_commie.health + settings.heart_healing <= 100:
-						stats.current_commie.health += settings.heart_healing
-						sb.prep_health_scores()
+					#if stats.current_commie.health + settings.heart_healing <= 100:
+						#stats.current_commie.health += settings.heart_healing
+						#sb.prep_health_scores()
+					heart = Heart(screen, settings, stats.current_commie.start_pos.centerx, stats.current_commie.start_pos.centery)
+					hearts.add(heart)
 
 def check_player_commie_collide(settings, players, commies, sb, stats):
 	for player in players:
