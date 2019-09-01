@@ -1,5 +1,6 @@
 from pygame.sprite import Group
 import pygame.font
+import funcs as funcs
 
 class Scoreboard():
 	def __init__(self, screen, settings, players, stats):
@@ -7,6 +8,9 @@ class Scoreboard():
 		self.text_color = (255,255,255)
 		self.commie_text_color = (155,0,0)
 		self.font = pygame.font.SysFont(None, 48)
+
+		self.commie_image = pygame.image.load(funcs.find_data_file("is_commie2.png"))
+		self.commie_image_rect = self.commie_image.get_rect()
 		
 		self.stats = stats
 		self.screen = screen
@@ -64,6 +68,9 @@ class Scoreboard():
 					self.pl1_info_rect.right = self.pl1_info_rect.right + 20
 					self.pl1_info_rect.top = self.pl1_health_rect.bottom + 10
 
+					self.commie_image_rect.centery = self.pl1_info_rect.centery
+					self.commie_image_rect.centerx = self.pl1_info_rect.centerx + 40
+
 			if player.player_num == 2:
 				if commie_time > 0 and self.stats.current_commie.player_num == 2:
 					self.pl2_info_image = self.font.render(str(round(commie_time)), True, self.commie_text_color)
@@ -72,6 +79,9 @@ class Scoreboard():
 					self.pl2_info_rect.right = self.screen.get_rect().right - 60
 					self.pl2_info_rect.top = self.pl2_health_rect.bottom + 20
 
+					self.commie_image_rect.centery = self.pl2_info_rect.centery
+					self.commie_image_rect.centerx = self.pl2_info_rect.centerx - 30
+
 	def draw_health_bars(self):
 		for player in self.players:
 			if player.player_num == 1:
@@ -79,8 +89,10 @@ class Scoreboard():
 				if not self.stats.current_commie == None:
 					if self.stats.current_commie.player_num == 1:
 						self.screen.blit(self.pl1_info_image, self.pl1_info_rect)
+						self.screen.blit(self.commie_image, self.commie_image_rect)
 					elif self.stats.current_commie.player_num == 2:
 						self.screen.blit(self.pl2_info_image, self.pl2_info_rect)
+						self.screen.blit(self.commie_image, self.commie_image_rect)
 			if player.player_num == 2:
 				pos = (self.screen.get_rect().right - 120, 10, player.health, 25)
 			

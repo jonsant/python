@@ -195,6 +195,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies):
 	stats.game_over = False
 	stats.someone_won = False
 	stats.current_commie = None
+	stats.commie_timer = settings.commie_time
 	sb.reset_scoreboard()
 
 	hearts.empty()
@@ -326,7 +327,7 @@ def new_bullet(bullet_group, settings, screen, player):
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors):
 	if stats.in_game:
 		if stats.current_commie == None:
 			screen.blit(settings.in_game_bg,(0,0))
@@ -338,6 +339,9 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 
 		for wa in walls.sprites():
 			wa.blitme()
+
+		for hq_door in hq_doors:
+			hq_door.blitme()
 		
 		for players_bullets in bullets:
 			for bullet in players_bullets.sprites():
@@ -377,6 +381,10 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 		menu_msgs.show_main_menu_msgs()
 		
 		pygame.display.flip()
+
+def update_doors(hq_doors):
+	for door in hq_doors:
+		door.update()
 
 def update_bullets(bullets, screen, players, settings, stats, sb):
 	for idx, players_bullets in enumerate(bullets):
@@ -479,7 +487,50 @@ def check_player_collide(settings, players):
 				player.moving_down = False
 				player.centerx -= 10
 				player.moving_down = True
-		
+
+def check_player_door_collide(settings, stats, players, hq_doors):
+	for idx, player in enumerate(players):
+
+		for door in hq_doors:
+			
+			if door.player.player_num == player.player_num:
+				hit = player.rect.colliderect(door.door_trigger_rect)
+				
+				if hit:
+					#door = hq_doors[idx]
+					if player.moving_up:
+						if door.is_closed:
+							player.moving_up = False
+							player.centery += 10
+							door.open()
+						elif door.is_open:
+							door.close()
+					elif player.moving_down:
+						if door.is_closed:
+							player.moving_down = False
+							player.centery -= 10
+							door.open()
+						elif door.is_open:
+							door.close()
+			elif not door.player.player_num == player.player_num:
+				hit = player.rect.colliderect(door.door_trigger_rect)
+				if hit:
+					if player.moving_down:
+						if door.is_closed:
+							player.moving_down = False
+							player.centery -= 10
+						elif door.is_open:
+							continue
+
+def check_bullet_door_collide(settings, stats, bullets, hq_doors):
+	for door in hq_doors:
+		for bullet_group in bullets:
+			collisions = pygame.sprite.spritecollideany(door, bullet_group)
+			
+			if collisions:
+				bullet_group.remove(collisions)
+
+
 def check_player_heart_collide(settings, players, hearts, sb, stats):
 	# Check for collisions with hearts for every player
 	for player in players:

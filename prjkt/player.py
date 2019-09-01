@@ -4,7 +4,7 @@ import os
 import funcs as funcs
 
 class Player(Sprite):
-	def __init__(self, settings, screen, plNum, player_start_pos=pygame.Rect(0,0,97,72)):
+	def __init__(self, settings, stats, screen, plNum, player_start_pos=pygame.Rect(0,0,97,72)):
 		super(Player, self).__init__()
 		
 		self.screen = screen
@@ -16,6 +16,7 @@ class Player(Sprite):
 		self.screen_rect = screen.get_rect()
 		
 		self.settings = settings
+		self.stats = stats
 
 		self.initialize_player()
 		

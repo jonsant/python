@@ -14,7 +14,7 @@ class Wall(Sprite):
         self.rect = self.image.get_rect()
 
         self.rect.centerx = xpos
-        self.rect.centery = ypos
+        self.rect.bottom = ypos
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)

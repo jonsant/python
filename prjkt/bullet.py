@@ -14,12 +14,17 @@ class Bullet(Sprite):
 		self.my_creator = player
 		self.player_centerx = player.centerx
 
+		self.is_missile = player.aiming_up
+
 		if self.my_creator.aiming_up:
 			funcs.play_sound("missile.wav")
 		else:
 			funcs.play_sound("shoot.wav")
-		
-		self.image = pygame.image.load(funcs.find_data_file("standard_bullet.png"))
+
+		if self.is_missile:
+			self.image = pygame.image.load(funcs.find_data_file("missile.png"))
+		else:
+			self.image = pygame.image.load(funcs.find_data_file("standard_bullet.png"))
 		
 		self.rect = self.image.get_rect()
 		
@@ -54,6 +59,12 @@ class Bullet(Sprite):
 		else:
 			self.img = self.image
 		
+		if self.player_direction == "left" or self.player_direction == "right":
+			if self.is_missile:
+				self.rect.centery = self.rect.centery + 20
+			elif not self.is_missile:
+				self.rect.centery = self.rect.centery + 15
+
 		self.centerx = float(self.rect.centerx)
 		self.centery = float(self.rect.centery)
 		

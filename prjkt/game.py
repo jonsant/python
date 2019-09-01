@@ -14,6 +14,7 @@ from heart import Heart
 from commie import Commie
 from plane import Plane
 from wall import Wall
+from hq_door import HQ_door
 
 def game():
 
@@ -38,8 +39,8 @@ def game():
 	
 	stats = Stats(screen, settings)
 	
-	player1 = Player(settings, screen, 1, settings.player1_start_pos)
-	player2 = Player(settings, screen, 2, settings.player2_start_pos)
+	player1 = Player(settings, stats, screen, 1, settings.player1_start_pos)
+	player2 = Player(settings, stats, screen, 2, settings.player2_start_pos)
 	#player3 = Player(settings, screen, 3, pygame.Rect(700, 200, 97,72))
 	players = [player1, player2]
 
@@ -53,10 +54,13 @@ def game():
 	commies = Group()
 	planes = Group()
 	walls = Group()
-	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom - 150)
-	wall2 = Wall(screen, settings, screen.get_rect().right - 150, screen.get_rect().bottom - 150)
-	wall3 = Wall(screen, settings, screen.get_rect().width / 2 - 110, screen.get_rect().height / 2 - 180)
-	wall4 = Wall(screen, settings, screen.get_rect().width / 2 + 200, screen.get_rect().height / 2 + 20)
+	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom)
+	wall2 = Wall(screen, settings, screen.get_rect().right - 150, screen.get_rect().bottom)
+	wall3 = Wall(screen, settings, screen.get_rect().width / 2 - 110, screen.get_rect().height / 2 - 80)
+	wall4 = Wall(screen, settings, screen.get_rect().width / 2 + 200, screen.get_rect().height / 2 + 180)
+	pl1_hq_door = HQ_door(settings, screen, player1, stats, screen.get_rect().left, wall.rect.top, wall)
+	pl2_hq_door = HQ_door(settings, screen, player2, stats, wall2.rect.right, wall2.rect.top, wall2)
+	hq_doors = [pl1_hq_door, pl2_hq_door]
 	walls.add(wall)
 	walls.add(wall2)
 	walls.add(wall3)
@@ -80,7 +84,7 @@ def game():
 	dt = 0
 
 	# timers
-	commie_timer = settings.commie_time
+	stats.commie_timer = settings.commie_time
 
 	while True:
 		
@@ -91,9 +95,9 @@ def game():
 				pygame.mixer.music.unpause()
 				# If commie exists, countdown
 				if not stats.current_commie == None and not stats.game_over:
-					commie_timer -= dt
-					sb.prep_player_info(commie_timer)
-					if commie_timer <= 0:
+					stats.commie_timer -= dt
+					sb.prep_player_info(stats.commie_timer)
+					if stats.commie_timer <= 0:
 						funcs.play_sound("flirp.wav")
 						stats.current_commie = None
 						for player in players:
@@ -125,6 +129,7 @@ def game():
 						player.update()
 				funcs.update_plane(settings, screen, planes)
 				funcs.update_bullets(bullets, screen, players, settings, stats, sb)
+				funcs.update_doors(hq_doors)
 				
 				funcs.check_player_collide(settings, players)
 				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets)
@@ -132,13 +137,15 @@ def game():
 				funcs.check_bullet_wall_collide(settings, screen, bullets, walls)
 				funcs.check_player_heart_collide(settings, players, hearts, sb, stats)
 				funcs.check_player_commie_collide(settings, players, commies, sb, stats)
+				funcs.check_player_door_collide(settings, stats, players, hq_doors)
+				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
 				# ---
 
 			else:
 				pygame.mixer.music.pause()
 				continue
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors)
 
 		dt = clock.tick(60) / 1000
 

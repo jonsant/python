@@ -21,6 +21,10 @@ class Settings():
 		# Timer settings
 		self.commie_time = 20
 
+		# Walls & Doors
+
+		self.door_speed = 3
+
 		# Bullet:
 			# Standard
 		self.bullet_speed_factor = 35
