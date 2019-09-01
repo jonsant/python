@@ -79,44 +79,35 @@ class Player(Sprite):
 	def update_image(self):
 		if self.moving_left and self.moving_up:
 			self.img = pygame.transform.rotate(self.image, 225)
+			#self.rect = self.img.get_rect()
 			self.direction = "upleft"
 		elif self.moving_left and self.moving_down:
 			self.img = pygame.transform.rotate(self.image, 315)
+			#self.rect = self.img.get_rect()
 			self.direction = "leftdown"
 		elif self.moving_right and self.moving_up:
 			self.img = pygame.transform.rotate(self.image, 135)
+			#self.rect = self.img.get_rect()
 			self.direction = "upright"
 		elif self.moving_right and self.moving_down:
 			self.img = pygame.transform.rotate(self.image, 45)
+			#self.rect = self.img.get_rect()
 			self.direction = "rightdown"
 		elif self.moving_left:
-			self.direction = "left"
-			self.headed_left = True
-			self.headed_up = False
-			self.headed_right = False
-			self.headed_down = False
 			self.img = pygame.transform.rotate(self.image, 270)
+			self.rect = self.img.get_rect()
+			self.direction = "left"
 		elif self.moving_right:
 			self.direction = "right"
-			self.headed_left = False
-			self.headed_up = False
-			self.headed_right = True
-			self.headed_down = False
 			self.img = pygame.transform.rotate(self.image, 90)
+			self.rect = self.img.get_rect()
 		elif self.moving_up:
 			self.direction = "up"
-			self.headed_left = False
-			self.headed_up = True
-			self.headed_right = False
-			self.headed_down = False
 			self.img = pygame.transform.rotate(self.image, 180)
 		elif self.moving_down:
 			self.direction = "down"
-			self.headed_left = False
-			self.headed_up = False
-			self.headed_right = False
-			self.headed_down = True
 			self.img = self.image
+			self.rect = self.img.get_rect()
 		
 	def blitme(self):
 		"""Draw the ship at its current location."""
