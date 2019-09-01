@@ -555,25 +555,29 @@ def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 	for player in players:
 		# Only let player pick up heart if can_take_health
 		if player.can_take_health:
-			collisions = pygame.sprite.spritecollide(player, hearts, True)
+			collisions = pygame.sprite.spritecollide(player, hearts, False)
 
 			if collisions:
+				print(len(collisions))
 				play_sound("blip.wav")
 				# Add to player health
 				if player.health + settings.heart_healing <= 100:
 					player.health += settings.heart_healing
 					sb.prep_health_scores()
-		else:
-			collisions = pygame.sprite.spritecollide(player, hearts, True)
+		elif not player.player_num == stats.current_commie.player_num:
+			collisions = pygame.sprite.spritecollide(player, hearts, False)
 
 			if not stats.current_commie == None:
 				if collisions:
+					print(len(collisions))
 					play_sound("blip.wav")
 					#if stats.current_commie.health + settings.heart_healing <= 100:
 						#stats.current_commie.health += settings.heart_healing
 						#sb.prep_health_scores()
 					heart = Heart(screen, settings, stats.current_commie.start_pos.centerx, stats.current_commie.start_pos.centery)
 					hearts.add(heart)
+				else:
+					print(collisions)
 
 def check_player_commie_collide(settings, players, commies, sb, stats):
 	for player in players:
