@@ -10,6 +10,7 @@ import os
 from commie import Commie
 from explosion import ExplosionSprite
 from heart import Heart
+import random
 
 _sound_library = {}
 def play_sound(path):
@@ -360,6 +361,10 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 			for item in itemGroup.sprites():
 				item.draw_item()
 
+		for pl in players:
+			for heart in pl.hq_hearts.sprites():
+				heart.draw_item()
+
 		for exp in explos:
 			exp.draw(screen)
 
@@ -553,31 +558,54 @@ def check_bullet_door_collide(settings, stats, bullets, hq_doors):
 def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 	# Check for collisions with hearts for every player
 	for player in players:
-		# Only let player pick up heart if can_take_health
+		# Only let player pick up health if can_take_health
 		if player.can_take_health:
-			collisions = pygame.sprite.spritecollide(player, hearts, False)
+			# Check for collisions with non-hq health
+			collisions = pygame.sprite.spritecollide(player, hearts, True)
 
 			if collisions:
-				print(len(collisions))
 				play_sound("blip.wav")
 				# Add to player health
 				if player.health + settings.heart_healing <= 100:
 					player.health += settings.heart_healing
 					sb.prep_health_scores()
-		elif not player.player_num == stats.current_commie.player_num:
-			collisions = pygame.sprite.spritecollide(player, hearts, False)
+			
+			# Check for collisions with hq health and its owner
+			hqHearts = pygame.sprite.spritecollide(player, player.hq_hearts, True)
+			if hqHearts:
+				play_sound("blip.wav")
+				for heart in hqHearts:
+					if player.health + settings.heart_healing <= 100:
+						player.health += settings.heart_healing
+						sb.prep_health_scores()
 
-			if not stats.current_commie == None:
+			# Check for collisions with hq health and other players
+			for players_hq_health_to_check in players:
+				if players_hq_health_to_check.player_num == player.player_num:
+					continue
+				else:
+					hqHearts = pygame.sprite.spritecollide(player, players_hq_health_to_check.hq_hearts, True)
+					if hqHearts:
+						play_sound("blip.wav")
+						for heart in hqHearts:
+							if player.health + settings.heart_healing <= 100:
+								player.health += settings.heart_healing
+								sb.prep_health_scores()
+			
+		elif not player.can_take_health:
+			collisions = pygame.sprite.spritecollide(player, hearts, True)
+
+			# If the player is not the commie
+			if not stats.current_commie.player_num == player.player_num:
 				if collisions:
-					print(len(collisions))
 					play_sound("blip.wav")
 					#if stats.current_commie.health + settings.heart_healing <= 100:
 						#stats.current_commie.health += settings.heart_healing
 						#sb.prep_health_scores()
 					heart = Heart(screen, settings, stats.current_commie.start_pos.centerx, stats.current_commie.start_pos.centery)
-					hearts.add(heart)
-				else:
-					print(collisions)
+					stats.current_commie.hq_hearts.add(heart)
+
+
 
 def check_player_commie_collide(settings, players, commies, sb, stats):
 	for player in players:

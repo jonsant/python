@@ -2,6 +2,7 @@ import pygame
 from pygame.sprite import Sprite
 import os
 import funcs as funcs
+from pygame.sprite import Group
 
 class Player(Sprite):
 	def __init__(self, settings, stats, screen, plNum, player_start_pos=pygame.Rect(0,0,97,72)):
@@ -26,6 +27,7 @@ class Player(Sprite):
 		self.can_take_health = True
 		self.aiming_up = False
 		self.is_alive = True
+		self.hq_hearts = Group()
 
 		if self.player_num == 1:
 			self.direction = "up"
