@@ -14,6 +14,7 @@ from heart import Heart
 from commie import Commie
 from plane import Plane
 from wall import Wall
+from bomb import Bomb
 from hq_door import HQ_door
 
 def game():
@@ -54,6 +55,7 @@ def game():
 
 	hearts = Group()
 	commies = Group()
+	bombs = Group()
 	planes = Group()
 	walls = Group()
 	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom)
@@ -68,7 +70,7 @@ def game():
 	walls.add(wall3)
 	walls.add(wall4)
 
-	items = [hearts, commies, planes]
+	items = [hearts, commies, planes, bombs]
 	
 	play_button = Button(screen, settings, stats, "play")
 	settings_button = Button(screen, settings, stats, "settings")

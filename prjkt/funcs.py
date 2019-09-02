@@ -10,6 +10,7 @@ import os
 from commie import Commie
 from explosion import ExplosionSprite
 from heart import Heart
+from bomb import Bomb
 import random
 
 _sound_library = {}
@@ -121,7 +122,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				elif event.button == settings.joystick_b:
 					if stats.in_game:
 						if not stats.paused and not stats.someone_won:
-							switch_player_weapon(players[1])
+							switch_player_weapon(players[1], sb)
 				elif event.button == settings.joystick_start:
 					pause_and_start(stats)
 			else:
@@ -264,7 +265,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_BACKSPACE:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:
-				switch_player_weapon(players[0])
+				switch_player_weapon(players[0], sb)
 
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
@@ -281,7 +282,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_v:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:
-				switch_player_weapon(players[1])
+				switch_player_weapon(players[1], sb)
 	elif event.key == pygame.K_SPACE:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:
@@ -327,7 +328,7 @@ def check_keyup_events(event, settings, screen, players):
 		#players[1].aiming_up = False
 		pass
 
-def switch_player_weapon(player):
+def switch_player_weapon(player, sb):
 	if player.selected_weapon == player.weapons[-1]:
 		player.selected_weapon = player.weapons[0]
 	else:
@@ -340,6 +341,8 @@ def switch_player_weapon(player):
 		player.aiming_up = True
 	else:
 		player.aiming_up = False
+
+	sb.prep_current_weapon()
 
 def new_bullet(bullet_group, settings, screen, player):
 	bullet = Bullet(settings, screen, player)
@@ -496,6 +499,8 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 						items[0].add(item)
 					elif type(item) == Commie:
 						items[1].add(item)
+					elif type(item) == Bomb:
+						items[3].add(item)
 					newExplo = ExplosionSprite(screen, plane.rect)
 					expl = Group(newExplo)
 					explos.append(expl)

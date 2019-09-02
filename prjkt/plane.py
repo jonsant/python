@@ -5,6 +5,7 @@ import random
 from random import choice
 from heart import Heart
 from commie import Commie
+from bomb import Bomb
 import funcs as funcs
 
 class Plane(Sprite):
@@ -174,8 +175,10 @@ class Plane(Sprite):
 	def release_item(self, xpos, ypos):
 		# choose a random item (if commie doesn't exist already)
 		if self.stats.current_commie == None:
-			self.classes = (Heart, Commie)
+			self.classes = (Heart, Commie, Bomb)
 			self.item = random.choice(self.classes)(self.screen, self.settings, xpos, ypos)
 			return self.item
 		else:
-			return Heart(self.screen, self.settings, xpos, ypos)
+			self.classes = (Heart, Bomb)
+			self.item = random.choice(self.classes)(self.screen, self.settings, xpos, ypos)
+			return self.item
