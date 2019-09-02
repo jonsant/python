@@ -27,14 +27,15 @@ class Scoreboard():
 
 	def prep_current_weapon(self):
 		for player in self.players:
-			if player.selected_weapon == "bullet":
-				self.pl1_current_weapon_image = pygame.image.load(funcs.find_data_file("standard_bullet.png"))
-				self.pl1_current_weapon_image = pygame.transform.rotate(self.pl1_current_weapon_image, 90)
-			elif player.selected_weapon == "missile":
-				self.pl1_current_weapon_image = pygame.image.load(funcs.find_data_file("missile.png"))
-				self.pl1_current_weapon_image = pygame.transform.rotate(self.pl1_current_weapon_image, -90)
-			elif player.selected_weapon == "bomb":
-				self.pl1_current_weapon_image = pygame.image.load(funcs.find_data_file("bomb_icon.png"))
+			if player.player_num == 2:
+				if player.selected_weapon == "bullet":
+					self.pl2_current_weapon_image = pygame.image.load(funcs.find_data_file("standard_bullet.png"))
+					self.pl2_current_weapon_image = pygame.transform.rotate(self.pl2_current_weapon_image, 90)
+				elif player.selected_weapon == "missile":
+					self.pl2_current_weapon_image = pygame.image.load(funcs.find_data_file("missile.png"))
+					self.pl2_current_weapon_image = pygame.transform.rotate(self.pl2_current_weapon_image, -90)
+				elif player.selected_weapon == "bomb":
+					self.pl2_current_weapon_image = pygame.image.load(funcs.find_data_file("bomb_icon.png"))
 
 				
 
@@ -116,8 +117,8 @@ class Scoreboard():
 		self.screen.blit(self.scoreboard_msg_img, self.scoreboard_msg_rect)
 		self.screen.blit(self.pl1_health_image, self.pl1_health_rect)
 		self.screen.blit(self.pl2_health_image, self.pl2_health_rect)
-		self.screen.blit(self.pl1_current_weapon_image,
-			(self.pl1_health_rect.right + 10, self.pl1_health_rect.centery-5, self.pl1_health_rect.width, self.pl1_health_rect.height))
+		self.screen.blit(self.pl2_current_weapon_image,
+			(self.pl2_health_rect.right + 2, self.pl2_health_rect.centery-5, self.pl2_health_rect.width, self.pl2_health_rect.height))
 		
 				 
 		
