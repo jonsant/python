@@ -11,9 +11,14 @@ class HQ_door(Sprite):
         self.stats = stats
         self.settings = settings
         self.player = player
+        self.xpos = xpos
+        self.ypos = ypos
 
         self.wall = wall
 
+        self.init_door()
+
+    def init_door(self):
         self.is_opening = False
         self.is_closing = False
         self.is_open = False
@@ -22,8 +27,8 @@ class HQ_door(Sprite):
         self.image = pygame.image.load(funcs.find_data_file("door.png"))
         self.rect = self.image.get_rect()
 
-        self.rect.left = xpos
-        self.rect.top = ypos
+        self.rect.left = self.xpos
+        self.rect.top = self.ypos
 
         self.door_trigger_rect = self.rect.copy()
         self.door_trigger_image = pygame.image.load(funcs.find_data_file("wall_trigger.png"))

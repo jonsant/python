@@ -90,7 +90,7 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors)
 
 		if stats.in_game:
 			if not stats.paused:

@@ -19,6 +19,8 @@ class Player(Sprite):
 		self.settings = settings
 		self.stats = stats
 
+		self.weapons = self.settings.available_weapons
+
 		self.initialize_player()
 		
 
@@ -26,6 +28,8 @@ class Player(Sprite):
 		self.health = self.settings.player_health
 		self.can_take_health = True
 		self.aiming_up = False
+		self.selected_weapon = self.weapons[0]
+		self.ammo = self.settings.starting_ammo.copy()
 		self.is_alive = True
 		self.hq_hearts = Group()
 

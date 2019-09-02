@@ -22,7 +22,7 @@ def play_sound(path):
 		_sound_library[path] = sound
 	sound.play()
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			if settings.controller_used:
@@ -30,14 +30,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players)
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -116,18 +116,17 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			elif stats.in_game:
 				if event.button == settings.joystick_a:
 					if stats.in_game:
-						if not stats.paused:
+						if not stats.paused and not stats.someone_won:
 							new_bullet(bullets[bulletGroup], settings, screen, player)
 				elif event.button == settings.joystick_b:
 					if stats.in_game:
-						if not stats.paused:
-							play_sound("robot.wav")
-							players[1].aiming_up = not players[1].aiming_up
+						if not stats.paused and not stats.someone_won:
+							switch_player_weapon(players[1])
 				elif event.button == settings.joystick_start:
 					pause_and_start(stats)
 			else:
 				if event.button == settings.joystick_start:
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
 					stats.in_game = True
 		elif event.type == pygame.JOYBUTTONUP:
 			if stats.in_game:
@@ -157,7 +156,7 @@ def save_controller_settings(settings):
 	except FileNotFoundError:
 		pass
 
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -167,7 +166,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 			if not stats.in_game:
 				if btn.button_type == "play":
 
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -188,7 +187,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb, players, bullets, hearts, commies):
+def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors):
 	pygame.mixer.music.load("song.mp3")
 	pygame.mixer.music.play(-1)
 
@@ -203,6 +202,9 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies):
 
 	hearts.empty()
 	commies.empty()
+
+	for door in hq_doors:
+		door.init_door()
 	
 	#players = []
 	#bullets = []
@@ -237,7 +239,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies):
 	#print(players)
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -253,16 +255,17 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		#players[0].direction = "down"
 	elif event.key == pygame.K_RETURN:
 		if stats.in_game:
-			if not stats.paused:
+			if not stats.paused and not stats.someone_won:
 				new_bullet(bullets[0], settings, screen, players[0])
 		else:
-			initGame(settings, stats, screen, sb, players, bullets, hearts, commies)
+			play_sound("button.wav")
+			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
 		if stats.in_game:
-			if not stats.paused:
-				play_sound("robot.wav")
-				players[0].aiming_up = not players[0].aiming_up
+			if not stats.paused and not stats.someone_won:
+				switch_player_weapon(players[0])
+
 	elif event.key == pygame.K_a:
 		players[1].moving_left = True
 		players[1].direction = "left"
@@ -277,12 +280,11 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 		players[1].direction = "down"
 	elif event.key == pygame.K_v:
 		if stats.in_game:
-			if not stats.paused:
-				play_sound("robot.wav")
-				players[1].aiming_up = not players[1].aiming_up
+			if not stats.paused and not stats.someone_won:
+				switch_player_weapon(players[1])
 	elif event.key == pygame.K_SPACE:
 		if stats.in_game:
-			if not stats.paused:
+			if not stats.paused and not stats.someone_won:
 				new_bullet(bullets[1], settings, screen, players[1])
 	elif event.key == pygame.K_q:
 		play_sound("button.wav")
@@ -324,6 +326,20 @@ def check_keyup_events(event, settings, screen, players):
 	elif event.key == pygame.K_v:
 		#players[1].aiming_up = False
 		pass
+
+def switch_player_weapon(player):
+	if player.selected_weapon == player.weapons[-1]:
+		player.selected_weapon = player.weapons[0]
+	else:
+		wpn_idx = player.weapons.index(player.selected_weapon)
+		player.selected_weapon = player.weapons[wpn_idx+1]
+
+	play_sound("robot.wav")
+
+	if player.selected_weapon == "missile":
+		player.aiming_up = True
+	else:
+		player.aiming_up = False
 
 def new_bullet(bullet_group, settings, screen, player):
 	bullet = Bullet(settings, screen, player)
@@ -474,6 +490,7 @@ def check_bullet_plane_collide(settings, screen, planes, items, players, stats, 
 		for plane, bullets in collisions.items():
 			for bullet in bullets[:]:
 				if bullet.is_missile:
+					play_sound("explode.wav")
 					item = plane.release_item(plane.centerx, plane.centery)
 					if type(item) == Heart:
 						items[0].add(item)
@@ -525,15 +542,19 @@ def check_player_door_collide(settings, stats, players, hq_doors):
 						if door.is_closed:
 							player.moving_up = False
 							player.centery += 10
+							play_sound("door.wav")
 							door.open()
 						elif door.is_open:
+							play_sound("door.wav")
 							door.close()
 					elif player.moving_down:
 						if door.is_closed:
 							player.moving_down = False
 							player.centery -= 10
+							play_sound("door.wav")
 							door.open()
 						elif door.is_open:
+							play_sound("door.wav")
 							door.close()
 			elif not door.player.player_num == player.player_num:
 				hit = player.rect.colliderect(door.door_trigger_rect)

@@ -47,6 +47,8 @@ class Settings():
 		self.player_health = 100
 		self.player_speed = 8
 		self.player_health_color = (40,255,50)
+		self.available_weapons = ["bullet", "missile", "grenade"]
+		self.starting_ammo = {"bullets": 1000000, "missiles": 1000000, "grenades": 2}
 		
 			# Player1
 		self.player1_start_pos = pygame.Rect(10, 600,97,72)
