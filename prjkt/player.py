@@ -30,6 +30,8 @@ class Player(Sprite):
 		self.selected_weapon = self.settings.available_weapons[0]
 		self.ammo = self.settings.starting_ammo.copy()
 		self.is_alive = True
+		self.arming_bomb = False
+		self.arming_timer = self.settings.arming_time
 		self.hq_hearts = Group()
 
 		if self.player_num == 1:

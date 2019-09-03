@@ -41,6 +41,10 @@ class Settings():
 		self.plane_speed_factor = 15
 		self.plane_health = 1
 
+		# Bomb:
+		self.arming_time = 5
+		self.bomb_time_to_explode = 3
+
 		# Player settings
 		
 			# Both
@@ -48,8 +52,8 @@ class Settings():
 		self.player_speed = 8
 		self.player_health_color = (40,255,50)
 		self.available_weapons = ["bullet", "missile", "bomb"]
-		self.starting_weapons = ["bullet", "missile"]
-		self.starting_ammo = {"bullet": 1000000, "missile": 1000000, "bomb": 2}
+		self.starting_weapons = ["bullet", "missile", "bomb"]
+		self.starting_ammo = {"bullet": 1000000, "missile": 1000000, "bomb": 1}
 		
 			# Player1
 		self.player1_start_pos = pygame.Rect(10, 600,97,72)

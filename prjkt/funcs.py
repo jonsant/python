@@ -23,7 +23,7 @@ def play_sound(path):
 		_sound_library[path] = sound
 	sound.play()
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			if settings.controller_used:
@@ -31,10 +31,10 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs)
 		
 		elif event.type == pygame.KEYUP:
-			check_keyup_events(event, settings, screen, players)
+			check_keyup_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs)
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -118,7 +118,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 				if event.button == settings.joystick_a:
 					if stats.in_game:
 						if not stats.paused and not stats.someone_won:
-							new_bullet(bullets[bulletGroup], settings, screen, player)
+							fire(bullets[bulletGroup], settings, screen, player, pl_bombs[1], sb)
 				elif event.button == settings.joystick_b:
 					if stats.in_game:
 						if not stats.paused and not stats.someone_won:
@@ -132,8 +132,8 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 		elif event.type == pygame.JOYBUTTONUP:
 			if stats.in_game:
 				if event.button == settings.joystick_a:
-					#players[1].aiming_up = False
-					pass
+					if player.arming_bomb:
+						fire(bullets[bulletGroup], settings, screen, player, pl_bombs[1], sb)
 
 def pause_and_start(stats):
 	if not stats.game_over:
@@ -240,7 +240,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_
 	#print(players)
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -257,7 +257,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_RETURN:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:
-				new_bullet(bullets[0], settings, screen, players[0])
+				fire(bullets[0], settings, screen, players[0], pl_bombs[0], sb)
 		else:
 			play_sound("button.wav")
 			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
@@ -286,7 +286,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_SPACE:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:
-				new_bullet(bullets[1], settings, screen, players[1])
+				fire(bullets[1], settings, screen, players[1], pl_bombs[1], sb)
 	elif event.key == pygame.K_q:
 		play_sound("button.wav")
 		if stats.in_game:
@@ -300,7 +300,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 				save_controller_settings(settings)
 			sys.exit()
 	
-def check_keyup_events(event, settings, screen, players):
+def check_keyup_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs):
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = False
 	elif event.key == pygame.K_LEFT:
@@ -314,8 +314,13 @@ def check_keyup_events(event, settings, screen, players):
 	elif event.key == pygame.K_DOWN:
 		players[0].moving_down = False
 	elif event.key == pygame.K_BACKSPACE:
-		#players[0].aiming_up = False
 		pass
+	elif event.key == pygame.K_SPACE:
+		if players[1].arming_bomb:
+			fire(bullets[1], settings, screen, players[1], pl_bombs[1], sb)
+	elif event.key == pygame.K_RETURN:
+		if players[0].arming_bomb:
+			fire(bullets[0], settings, screen, players[0], pl_bombs[0], sb)
 	elif event.key == pygame.K_a:
 		players[1].moving_left = False
 	elif event.key == pygame.K_d:
@@ -332,8 +337,12 @@ def switch_player_weapon(player, sb):
 	if player.selected_weapon == player.weapons[-1]:
 		player.selected_weapon = player.weapons[0]
 	else:
-		wpn_idx = player.weapons.index(player.selected_weapon)
-		player.selected_weapon = player.weapons[wpn_idx+1]
+		try:
+			wpn_idx = player.weapons.index(player.selected_weapon)
+			player.selected_weapon = player.weapons[wpn_idx+1]
+		except:
+			player.selected_weapon = player.weapons[0]
+			
 
 	play_sound("robot.wav")
 
@@ -344,12 +353,36 @@ def switch_player_weapon(player, sb):
 
 	sb.prep_current_weapon()
 
+def fire(bullet_group, settings, screen, player, bomb_group, sb):
+	if player.selected_weapon == "bullet" or player.selected_weapon == "missile":
+		new_bullet(bullet_group, settings, screen, player)
+	elif player.selected_weapon == "bomb":
+		if player.ammo["bomb"] > 0:
+			if not player.arming_bomb:
+				player.arming_bomb = True
+			elif player.arming_bomb:
+				if player.arming_timer <= 0:
+					new_bomb(bomb_group, screen, settings, player.centerx, player.centery, player, True)
+					player.ammo["bomb"] -= 1
+					player.arming_bomb = False
+					player.arming_timer = settings.arming_time
+				elif player.arming_timer > 0:
+					player.arming_bomb = False
+					player.arming_timer = settings.arming_time
+		if player.ammo["bomb"] == 0:
+			player.weapons.remove("bomb")
+			switch_player_weapon(player, sb)
+
+def new_bomb(bomb_group, screen, settings, xpos, ypos, player, activated):
+	bomb = Bomb(screen, settings, xpos, ypos, player, activated)
+	bomb_group.add(bomb)
+
 def new_bullet(bullet_group, settings, screen, player):
 	bullet = Bullet(settings, screen, player)
 	bullet_group.add(bullet)
 	
 
-def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos):
+def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos, pl_bombs, bomb_explos):
 	if stats.in_game:
 		if stats.current_commie == None:
 			screen.blit(settings.in_game_bg,(0,0))
@@ -380,12 +413,19 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 			for item in itemGroup.sprites():
 				item.draw_item()
 
+		for pl_bomb_group in pl_bombs:
+			for bomb in pl_bomb_group.sprites():
+				bomb.draw_item()
+
 		for pl in players:
 			for heart in pl.hq_hearts.sprites():
 				heart.draw_item()
 
 		for exp in explos:
 			exp.draw(screen)
+
+		for b_exp in bomb_explos:
+			b_exp.draw(screen)
 
 		pygame.display.flip()
 	
@@ -446,6 +486,28 @@ def update_plane(settings, screen, planes):
 	for plane in planes.copy():
 		if plane.rect.bottom <= (0 - plane.rect.height) or plane.rect.top >= screen.get_rect().bottom or plane.rect.left >= screen.get_rect().right or plane.rect.right <= 0:
 			planes.remove(plane)
+
+def update_pl_bombs(pl_bombs, bomb_explos, screen):
+	for bomb_group in pl_bombs:
+		if bomb_group:
+			for bomb in bomb_group.sprites():
+				if bomb.timer <= 0:
+					play_sound("bomb_explosion.wav")
+					newExplo = ExplosionSprite(screen, bomb.rect, "bomb")
+					expl = Group(newExplo)
+					bomb_explos.append(expl)
+					bomb_group.remove(bomb)
+
+def update_bomb_explos(bomb_explos, dt):
+	if bomb_explos:
+		try:
+			for idx, exp in enumerate(bomb_explos[:]):
+				for ex in exp:
+					if ex.index >= 8:
+						del bomb_explos[idx]
+				exp.update(dt)
+		except:
+			pass
 
 def update_explos(explos, dt):
 	if explos:
@@ -691,6 +753,27 @@ def check_bullet_wall_collide(settings, screen, bullets, walls):
 					continue
 				else:
 					bullet_group.remove(bullet)
+
+def check_player_bomb_collide(settings, players, bombs, sb):
+	for player in players:
+		collisions = pygame.sprite.spritecollide(player, bombs, True)
+
+		if collisions:
+			play_sound("blip.wav")
+			# Add to player ammo
+			if player.ammo["bomb"] == 0:
+				player.weapons.append("bomb")
+
+			player.ammo["bomb"] += 1
+			print(player.ammo["bomb"])
+
+def check_player_activated_bomb_collide(settings, players, pl_bombs, sb):
+	for player in players:
+		for bomb_group in pl_bombs:
+			collisions = pygame.sprite.spritecollide(player, bomb_group, False)
+
+			if collisions:
+				pass
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):

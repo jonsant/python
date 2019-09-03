@@ -51,7 +51,14 @@ def game():
 
 	bullets = [bullets1, bullets2]
 
+	pl1_bombs = Group()
+	pl2_bombs = Group()
+
+	pl_bombs = [pl1_bombs, pl2_bombs]
+
 	explos = []
+
+	bomb_explos = []
 
 	hearts = Group()
 	commies = Group()
@@ -92,11 +99,23 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt)
 
 		if stats.in_game:
 			if not stats.paused:
 				pygame.mixer.music.unpause()
+				# If player is arming bomb, reduce arming timer
+				for player in players:
+					if player.arming_bomb:
+						player.arming_timer -= dt
+						print(player.arming_timer)
+
+				# Reduce time for activated bombs
+				for bomb_group in pl_bombs:
+					for bomb in bomb_group.sprites():
+						if bomb.timer > 0:
+							bomb.timer -= dt
+
 				# If commie exists, countdown
 				if not stats.current_commie == None and not stats.game_over:
 					stats.commie_timer -= dt
@@ -134,7 +153,9 @@ def game():
 				funcs.update_plane(settings, screen, planes)
 				funcs.update_bullets(bullets, screen, players, settings, stats, sb)
 				funcs.update_doors(hq_doors)
+				funcs.update_pl_bombs(pl_bombs, bomb_explos, screen)
 				funcs.update_explos(explos, dt)
+				funcs.update_bomb_explos(bomb_explos, dt)
 				
 				funcs.check_player_collide(settings, players)
 				funcs.check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets, explos)
@@ -142,6 +163,8 @@ def game():
 				funcs.check_bullet_wall_collide(settings, screen, bullets, walls)
 				funcs.check_player_heart_collide(settings, players, hearts, sb, stats, screen)
 				funcs.check_player_commie_collide(settings, players, commies, sb, stats)
+				funcs.check_player_bomb_collide(settings, players, bombs, sb)
+				funcs.check_player_activated_bomb_collide(settings, players, pl_bombs, sb)
 				funcs.check_player_door_collide(settings, stats, players, hq_doors)
 				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
 				# ---
@@ -150,7 +173,7 @@ def game():
 				pygame.mixer.music.pause()
 				continue
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos, pl_bombs, bomb_explos)
 
 		dt = clock.tick(60) / 1000
 
