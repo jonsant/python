@@ -24,6 +24,7 @@ class HQ_door(Sprite):
         self.is_open = False
         self.is_closed = True
         self.ruined = False
+        self.health = self.settings.door_health
 
         self.image = pygame.image.load(funcs.find_data_file("door.png"))
         self.rect = self.image.get_rect()
@@ -45,6 +46,21 @@ class HQ_door(Sprite):
         self.is_closing = True
         self.is_open = False
         self.is_closed = False
+
+    def explode_door(self):
+        self.health -= 1
+        if self.health >= 52:
+            self.image = pygame.image.load(funcs.find_data_file("door_4.png"))
+        elif self.health >= 39:
+            self.image = pygame.image.load(funcs.find_data_file("door_3.png"))
+        elif self.health >= 26:
+            self.image = pygame.image.load(funcs.find_data_file("door_2.png"))
+        elif self.health >= 13:
+            self.image = pygame.image.load(funcs.find_data_file("door_1.png"))
+        elif self.health <= 0:
+            self.image = pygame.image.load(funcs.find_data_file("ruined_door.png"))
+            self.ruined = True
+            self.health = 0
 
     def destroy_door(self):
         self.ruined = True

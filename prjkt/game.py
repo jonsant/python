@@ -16,6 +16,7 @@ from plane import Plane
 from wall import Wall
 from bomb import Bomb
 from hq_door import HQ_door
+from prop import Property
 
 def game():
 
@@ -26,7 +27,6 @@ def game():
 
 	pygame.mixer.music.load("song.mp3")
 	pygame.mixer.music.play(-1)
-
 	#init joystick(s)
 	pygame.joystick.init()
 	joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
@@ -81,6 +81,10 @@ def game():
 	walls.add(wall5)
 	walls.add(wall6)
 
+	pl1_property = Property(screen, settings, player1)
+	pl2_property = Property(screen, settings, player2)
+	belongings = [pl1_property, pl2_property]
+
 	items = [hearts, commies, planes, bombs]
 	
 	play_button = Button(screen, settings, stats, "play")
@@ -103,7 +107,7 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls, belongings)
 
 		if stats.in_game:
 			if not stats.paused:
@@ -171,15 +175,16 @@ def game():
 				funcs.check_player_door_collide(settings, stats, players, hq_doors)
 				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
 				funcs.check_explosion_wall_collide(settings, stats, bomb_explos, walls)
-				funcs.check_player_bomb_explosion_collide(settings, players, bomb_explos, sb)
+				funcs.check_player_bomb_explosion_collide(settings, players, bomb_explos, sb, stats)
 				funcs.check_explosion_door_collide(settings, stats, bomb_explos, hq_doors)
+				funcs.check_enemy_property_collide(settings, stats, players, belongings, sb)
 				# ---
 
 			else:
 				pygame.mixer.music.pause()
 				continue
 		
-		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos, pl_bombs, bomb_explos)
+		funcs.update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, sb, items, walls, hq_doors, explos, pl_bombs, bomb_explos, belongings)
 
 		dt = clock.tick(60) / 1000
 

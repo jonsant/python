@@ -24,6 +24,8 @@ class Settings():
 		# Walls & Doors
 
 		self.door_speed = 3
+		self.door_health = 65
+		self.wall_health = 65
 
 		# Bullet:
 			# Standard
@@ -53,8 +55,8 @@ class Settings():
 		self.player_speed = 8
 		self.player_health_color = (40,255,50)
 		self.available_weapons = ["bullet", "missile", "bomb"]
-		self.starting_weapons = ["bullet", "missile", "bomb"]
-		self.starting_ammo = {"bullet": 1000000, "missile": 1000000, "bomb": 1}
+		self.starting_weapons = ["bullet", "missile"]
+		self.starting_ammo = {"bullet": 1000000, "missile": 1000000, "bomb": 0}
 		
 			# Player1
 		self.player1_start_pos = pygame.Rect(10, 600,97,72)
