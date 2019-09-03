@@ -44,6 +44,7 @@ class Settings():
 		# Bomb:
 		self.arming_time = 5
 		self.bomb_time_to_explode = 3
+		self.bomb_damage = 3
 
 		# Player settings
 		

@@ -167,6 +167,7 @@ def game():
 				funcs.check_player_activated_bomb_collide(settings, players, pl_bombs, sb)
 				funcs.check_player_door_collide(settings, stats, players, hq_doors)
 				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
+				funcs.check_player_bomb_explosion_collide(settings, players, bomb_explos, sb)
 				# ---
 
 			else:

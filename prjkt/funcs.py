@@ -493,7 +493,7 @@ def update_pl_bombs(pl_bombs, bomb_explos, screen):
 			for bomb in bomb_group.sprites():
 				if bomb.timer <= 0:
 					play_sound("bomb_explosion.wav")
-					newExplo = ExplosionSprite(screen, bomb.rect, "bomb")
+					newExplo = ExplosionSprite(screen, bomb.rect, "bomb", bomb.my_creator)
 					expl = Group(newExplo)
 					bomb_explos.append(expl)
 					bomb_group.remove(bomb)
@@ -765,15 +765,26 @@ def check_player_bomb_collide(settings, players, bombs, sb):
 				player.weapons.append("bomb")
 
 			player.ammo["bomb"] += 1
-			print(player.ammo["bomb"])
 
 def check_player_activated_bomb_collide(settings, players, pl_bombs, sb):
 	for player in players:
 		for bomb_group in pl_bombs:
 			collisions = pygame.sprite.spritecollide(player, bomb_group, False)
 
+			
+			
+def check_player_bomb_explosion_collide(settings, players, bomb_explos, sb):
+	for player in players:
+		for expl_group in bomb_explos:
+			collisions = pygame.sprite.spritecollide(player, expl_group, False)
+
 			if collisions:
-				pass
+				if player.health - settings.bomb_damage <= 0:
+					player.health = 0
+				else:
+					player.health -= settings.bomb_damage
+				
+
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):

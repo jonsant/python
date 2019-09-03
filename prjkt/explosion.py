@@ -7,10 +7,13 @@ def load_image(name):
 	return image
 
 class ExplosionSprite(Sprite):
-	def __init__(self, screen, pos, expl_type="plane"):
+	def __init__(self, screen, pos, expl_type="plane", player=None):
 		super().__init__()
 
 		self.expl_type = expl_type
+
+		if not player == None:
+			self.my_creator = player
 
 		self.images = []
 
