@@ -17,13 +17,17 @@ class Scoreboard():
 		self.settings = settings
 		self.players = players
 		self.prep_info_text()
+		self.prep_health_bars()
 		self.prep_health_scores()
+		self.prep_ammo_info()
 
 	def reset_scoreboard(self):
 		self.prep_info_text()
+		self.prep_health_bars()
 		self.prep_health_scores()
 		self.prep_player_info()
 		self.prep_current_weapon()
+		self.prep_ammo_info()
 
 	def prep_current_weapon(self):
 		for player in self.players:
@@ -47,6 +51,22 @@ class Scoreboard():
 					self.pl2_current_weapon_image = pygame.image.load(funcs.find_data_file("bomb_icon.png"))
 
 				
+	def prep_ammo_info(self):
+		for player in self.players:
+			if player.player_num == 1:
+				ammo = player.ammo[player.selected_weapon]
+
+				self.pl1_ammo_image = self.font.render(str(ammo), True, self.text_color)
+
+				self.pl1_ammo_msg_rect = (self.pl1_bar_rect[0] + 45, self.pl1_bar_rect[1] + 30, self.pl1_health_rect.width, self.pl1_health_rect.height)
+
+			elif player.player_num == 2:
+				ammo = player.ammo[player.selected_weapon]
+
+				self.pl2_ammo_image = self.font.render(str(ammo), True, self.text_color)
+				
+				self.pl2_ammo_msg_rect = (self.pl2_bar_rect[0] + 45, self.pl2_bar_rect[1] + 30, self.pl2_health_rect.width, self.pl2_health_rect.height)
+
 
 
 	def prep_info_text(self, msg=""):
@@ -91,7 +111,7 @@ class Scoreboard():
 				
 					self.pl1_info_rect = self.pl1_info_image.get_rect()
 					self.pl1_info_rect.right = self.pl1_info_rect.right + 20
-					self.pl1_info_rect.top = self.pl1_health_rect.bottom + 20
+					self.pl1_info_rect.top = self.pl1_health_rect.bottom + 30
 
 					self.commie_image_rect.centery = self.pl1_info_rect.centery
 					self.commie_image_rect.centerx = self.pl1_info_rect.centerx + 40
@@ -102,16 +122,22 @@ class Scoreboard():
 				
 					self.pl2_info_rect = self.pl2_info_image.get_rect()
 					self.pl2_info_rect.right = self.screen.get_rect().right - 60
-					self.pl2_info_rect.top = self.pl2_health_rect.bottom + 20
+					self.pl2_info_rect.top = self.pl2_health_rect.bottom + 30
 
 					self.commie_image_rect.centery = self.pl2_info_rect.centery
 					self.commie_image_rect.centerx = self.pl2_info_rect.centerx - 30
 
 
-	def draw_health_bars(self):
+	def prep_health_bars(self):
 		for player in self.players:
 			if player.player_num == 1:
 				self.pl1_bar_rect = (20,10, player.health, 25)
+			elif player.player_num == 2:
+				self.pl2_bar_rect = (self.screen.get_rect().right - 120, 10, player.health, 25)
+
+	def draw_health_bars(self):
+		for player in self.players:
+			if player.player_num == 1:
 				pos = self.pl1_bar_rect
 				if not self.stats.current_commie == None:
 					if self.stats.current_commie.player_num == 1:
@@ -121,7 +147,6 @@ class Scoreboard():
 						self.screen.blit(self.pl2_info_image, self.pl2_info_rect)
 						self.screen.blit(self.commie_image, self.commie_image_rect)
 			if player.player_num == 2:
-				self.pl2_bar_rect = (self.screen.get_rect().right - 120, 10, player.health, 25)
 				pos = self.pl2_bar_rect
 			
 			pygame.draw.rect(self.screen, self.settings.player_health_color, pos)
@@ -134,5 +159,12 @@ class Scoreboard():
 		self.screen.blit(self.pl1_current_weapon_image,
 			(self.pl1_bar_rect[0], self.pl1_bar_rect[1] + 30, self.pl1_health_rect.width, self.pl1_health_rect.height))
 		
+		# Draw ammo number
+		for player in self.players:
+			if player.selected_weapon == "bomb":
+				if player.player_num == 1:
+					self.screen.blit(self.pl1_ammo_image, self.pl1_ammo_msg_rect)
+				elif player.player_num == 2:
+					self.screen.blit(self.pl2_ammo_image, self.pl2_ammo_msg_rect)
 				 
 		

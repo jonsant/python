@@ -99,7 +99,7 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls)
 
 		if stats.in_game:
 			if not stats.paused:
@@ -108,7 +108,6 @@ def game():
 				for player in players:
 					if player.arming_bomb:
 						player.arming_timer -= dt
-						print(player.arming_timer)
 
 				# Reduce time for activated bombs
 				for bomb_group in pl_bombs:
@@ -167,7 +166,9 @@ def game():
 				funcs.check_player_activated_bomb_collide(settings, players, pl_bombs, sb)
 				funcs.check_player_door_collide(settings, stats, players, hq_doors)
 				funcs.check_bullet_door_collide(settings, stats, bullets, hq_doors)
+				funcs.check_explosion_wall_collide(settings, stats, bomb_explos, walls)
 				funcs.check_player_bomb_explosion_collide(settings, players, bomb_explos, sb)
+				funcs.check_explosion_door_collide(settings, stats, bomb_explos, hq_doors)
 				# ---
 
 			else:

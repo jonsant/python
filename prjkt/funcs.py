@@ -23,7 +23,7 @@ def play_sound(path):
 		_sound_library[path] = sound
 	sound.play()
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			if settings.controller_used:
@@ -31,14 +31,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs)
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -127,9 +127,16 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					pause_and_start(stats)
 			else:
 				if event.button == settings.joystick_start:
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls)
 					stats.in_game = True
 		elif event.type == pygame.JOYBUTTONUP:
+			# If there are 3 players, set joystick to control player 3. If two players, control player 2
+			if len(players) == 3:
+				player = players[2]
+				bulletGroup = 2
+			elif len(players) == 2:
+				player = players[1]
+				bulletGroup = 1
 			if stats.in_game:
 				if event.button == settings.joystick_a:
 					if player.arming_bomb:
@@ -157,7 +164,7 @@ def save_controller_settings(settings):
 	except FileNotFoundError:
 		pass
 
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -167,7 +174,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 			if not stats.in_game:
 				if btn.button_type == "play":
 
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -188,7 +195,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors):
+def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls):
 	pygame.mixer.music.load("song.mp3")
 	pygame.mixer.music.play(-1)
 
@@ -203,6 +210,9 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_
 
 	hearts.empty()
 	commies.empty()
+
+	for wall in walls:
+		wall.fix_wall()
 
 	for door in hq_doors:
 		door.init_door()
@@ -240,7 +250,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_
 	#print(players)
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -260,7 +270,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 				fire(bullets[0], settings, screen, players[0], pl_bombs[0], sb)
 		else:
 			play_sound("button.wav")
-			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors)
+			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
 		if stats.in_game:
@@ -342,6 +352,8 @@ def switch_player_weapon(player, sb):
 			player.selected_weapon = player.weapons[wpn_idx+1]
 		except:
 			player.selected_weapon = player.weapons[0]
+		
+	sb.prep_ammo_info()
 			
 
 	play_sound("robot.wav")
@@ -372,6 +384,7 @@ def fire(bullet_group, settings, screen, player, bomb_group, sb):
 		if player.ammo["bomb"] == 0:
 			player.weapons.remove("bomb")
 			switch_player_weapon(player, sb)
+	sb.prep_ammo_info()
 
 def new_bomb(bomb_group, screen, settings, xpos, ypos, player, activated):
 	bomb = Bomb(screen, settings, xpos, ypos, player, activated)
@@ -389,14 +402,18 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 		else:
 			screen.blit(settings.in_game_commie_bg, (0,0))
 
-		for player in players:
-			player.blitme()
+		for hq_door in hq_doors:
+			hq_door.blitme()
 
 		for wa in walls.sprites():
 			wa.blitme()
 
-		for hq_door in hq_doors:
-			hq_door.blitme()
+		for pl_bomb_group in pl_bombs:
+			for bomb in pl_bomb_group.sprites():
+				bomb.draw_item()
+
+		for player in players:
+			player.blitme()
 		
 		for players_bullets in bullets:
 			for bullet in players_bullets.sprites():
@@ -412,10 +429,6 @@ def update(screen, settings, players, stats, menu_buttons, bullets, menu_msgs, s
 		for itemGroup in items:
 			for item in itemGroup.sprites():
 				item.draw_item()
-
-		for pl_bomb_group in pl_bombs:
-			for bomb in pl_bomb_group.sprites():
-				bomb.draw_item()
 
 		for pl in players:
 			for heart in pl.hq_hearts.sprites():
@@ -541,11 +554,13 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 							stats.game_over = True
 							player.health = 0
 							sb.prep_health_scores()
+							sb.prep_health_bars()
 						else:
 							play_sound("hit.wav")
 							players_bullets.remove(bullet)
 							player.health -= settings.bullet_damage
 							sb.prep_health_scores()
+							sb.prep_health_bars()
 				
 def check_bullet_plane_collide(settings, screen, planes, items, players, stats, sb, bullets, explos):
 	# For every players bullet group, check for collision with plane
@@ -599,39 +614,43 @@ def check_player_door_collide(settings, stats, players, hq_doors):
 	for idx, player in enumerate(players):
 
 		for door in hq_doors:
-			
-			if door.player.player_num == player.player_num:
-				hit = player.rect.colliderect(door.door_trigger_rect)
-				
-				if hit:
-					#door = hq_doors[idx]
-					if player.moving_up:
-						if door.is_closed:
-							player.moving_up = False
-							player.centery += 10
-							play_sound("door.wav")
-							door.open()
-						elif door.is_open:
-							play_sound("door.wav")
-							door.close()
-					elif player.moving_down:
-						if door.is_closed:
-							player.moving_down = False
-							player.centery -= 10
-							play_sound("door.wav")
-							door.open()
-						elif door.is_open:
-							play_sound("door.wav")
-							door.close()
-			elif not door.player.player_num == player.player_num:
-				hit = player.rect.colliderect(door.door_trigger_rect)
-				if hit:
-					if player.moving_down:
-						if door.is_closed:
-							player.moving_down = False
-							player.centery -= 10
-						elif door.is_open:
-							continue
+
+			if door.ruined:
+				pass
+
+			else:
+				if door.player.player_num == player.player_num:
+					hit = player.rect.colliderect(door.door_trigger_rect)
+					
+					if hit:
+						#door = hq_doors[idx]
+						if player.moving_up:
+							if door.is_closed:
+								player.moving_up = False
+								player.centery += 10
+								play_sound("door.wav")
+								door.open()
+							elif door.is_open:
+								play_sound("door.wav")
+								door.close()
+						elif player.moving_down:
+							if door.is_closed:
+								player.moving_down = False
+								player.centery -= 10
+								play_sound("door.wav")
+								door.open()
+							elif door.is_open:
+								play_sound("door.wav")
+								door.close()
+				elif not door.player.player_num == player.player_num:
+					hit = player.rect.colliderect(door.door_trigger_rect)
+					if hit:
+						if player.moving_down:
+							if door.is_closed:
+								player.moving_down = False
+								player.centery -= 10
+							elif door.is_open:
+								continue
 
 def check_bullet_door_collide(settings, stats, bullets, hq_doors):
 	for door in hq_doors:
@@ -640,7 +659,8 @@ def check_bullet_door_collide(settings, stats, bullets, hq_doors):
 			
 			if bullet:
 				if not bullet.is_missile:
-					bullet_group.remove(bullet)
+					if not door.ruined:
+						bullet_group.remove(bullet)
 
 
 def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
@@ -657,6 +677,7 @@ def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 				if player.health + settings.heart_healing <= 100:
 					player.health += settings.heart_healing
 					sb.prep_health_scores()
+					sb.prep_health_bars()
 			
 			# Check for collisions with hq health and its owner
 			hqHearts = pygame.sprite.spritecollide(player, player.hq_hearts, True)
@@ -666,6 +687,7 @@ def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 					if player.health + settings.heart_healing <= 100:
 						player.health += settings.heart_healing
 						sb.prep_health_scores()
+						sb.prep_health_bars()
 
 			# Check for collisions with hq health and other players
 			for players_hq_health_to_check in players:
@@ -679,6 +701,7 @@ def check_player_heart_collide(settings, players, hearts, sb, stats, screen):
 							if player.health + settings.heart_healing <= 100:
 								player.health += settings.heart_healing
 								sb.prep_health_scores()
+								sb.prep_health_bars()
 			
 		elif not player.can_take_health:
 			collisions = pygame.sprite.spritecollide(player, hearts, True)
@@ -721,27 +744,31 @@ def check_player_wall_collide(settings, screen, players, walls):
 		collisions = pygame.sprite.spritecollide(player, walls, False)
 
 		if collisions:
-			if player.moving_up and player.moving_right:
-				player.moving_up = False
-				player.moving_right = False
-				player.centerx -= 10
-				player.centery += 10
-			elif player.moving_right:
-				player.moving_right = False
-				player.centerx -= 10
-				player.moving_right = True
-			elif player.moving_left:
-				player.moving_left = False
-				player.centerx += 10
-				player.moving_left = True
-			elif player.moving_up:
-				player.moving_up = False
-				player.centerx += 10
-				player.moving_up = True
-			elif player.moving_down:
-				player.moving_down = False
-				player.centerx -= 10
-				player.moving_down = True
+			if not collisions[0].ruined:
+				if player.moving_up and player.moving_right:
+					player.moving_up = False
+					player.moving_right = False
+					player.centerx -= 10
+					player.centery += 10
+				elif player.moving_right:
+					player.moving_right = False
+					player.centerx -= 10
+					player.moving_right = True
+				elif player.moving_left:
+					player.moving_left = False
+					player.centerx += 10
+					player.moving_left = True
+				elif player.moving_up:
+					player.moving_up = False
+					player.centerx += 10
+					player.moving_up = True
+				elif player.moving_down:
+					player.moving_down = False
+					player.centerx -= 10
+					player.moving_down = True
+			else:
+				#player.speed = 5
+				pass
 
 def check_bullet_wall_collide(settings, screen, bullets, walls):
 	for bullet_group in bullets:
@@ -752,7 +779,8 @@ def check_bullet_wall_collide(settings, screen, bullets, walls):
 				if bullet.is_missile:
 					continue
 				else:
-					bullet_group.remove(bullet)
+					if not wall.ruined:
+						bullet_group.remove(bullet)
 
 def check_player_bomb_collide(settings, players, bombs, sb):
 	for player in players:
@@ -765,6 +793,7 @@ def check_player_bomb_collide(settings, players, bombs, sb):
 				player.weapons.append("bomb")
 
 			player.ammo["bomb"] += 1
+			sb.prep_ammo_info()
 
 def check_player_activated_bomb_collide(settings, players, pl_bombs, sb):
 	for player in players:
@@ -781,10 +810,28 @@ def check_player_bomb_explosion_collide(settings, players, bomb_explos, sb):
 			if collisions:
 				if player.health - settings.bomb_damage <= 0:
 					player.health = 0
+					sb.prep_health_bars()
+					sb.prep_health_scores()					
 				else:
 					player.health -= settings.bomb_damage
+					sb.prep_health_bars()
+					sb.prep_health_scores()	
 				
+def check_explosion_wall_collide(settings, stats, bomb_explos, walls):
+	for wall in walls:
+		for expl_group in bomb_explos:
+			collisions = pygame.sprite.spritecollide(wall, expl_group, False)
 
+			if collisions:
+				wall.destroy_wall()
+
+def check_explosion_door_collide(settings, stats, bomb_explos, doors):
+	for door in doors:
+		for expl_group in bomb_explos:
+			collisions = pygame.sprite.spritecollide(door, expl_group, False)
+
+			if collisions:
+				door.destroy_door()
 
 def find_data_file(filename):
 	if getattr(sys, 'frozen', False):

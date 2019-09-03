@@ -26,13 +26,14 @@ class Player(Sprite):
 		self.health = self.settings.player_health
 		self.can_take_health = True
 		self.aiming_up = False
-		self.weapons = self.settings.starting_weapons
+		self.weapons = self.settings.starting_weapons.copy()
 		self.selected_weapon = self.settings.available_weapons[0]
 		self.ammo = self.settings.starting_ammo.copy()
 		self.is_alive = True
 		self.arming_bomb = False
 		self.arming_timer = self.settings.arming_time
 		self.hq_hearts = Group()
+		self.speed = self.settings.player_speed
 
 		if self.player_num == 1:
 			self.direction = "up"
@@ -68,16 +69,16 @@ class Player(Sprite):
 		
 		if self.moving_left:
 			if self.rect.left > self.screen_rect.left:
-				self.centerx -= self.settings.player_speed
+				self.centerx -= self.speed
 		if self.moving_right:
 			if self.rect.right < self.screen_rect.right:
-				self.centerx += self.settings.player_speed
+				self.centerx += self.speed
 		if self.moving_up:
 			if self.rect.top > self.screen_rect.top:
-				self.centery -= self.settings.player_speed
+				self.centery -= self.speed
 		if self.moving_down:
 			if self.rect.bottom < self.screen_rect.bottom:
-				self.centery += self.settings.player_speed
+				self.centery += self.speed
 				
 		self.update_image()
 		

@@ -23,6 +23,7 @@ class HQ_door(Sprite):
         self.is_closing = False
         self.is_open = False
         self.is_closed = True
+        self.ruined = False
 
         self.image = pygame.image.load(funcs.find_data_file("door.png"))
         self.rect = self.image.get_rect()
@@ -44,6 +45,13 @@ class HQ_door(Sprite):
         self.is_closing = True
         self.is_open = False
         self.is_closed = False
+
+    def destroy_door(self):
+        self.ruined = True
+        self.image = pygame.image.load(funcs.find_data_file("ruined_door.png"))
+        self.rect.left = self.xpos
+        self.rect.top = self.ypos
+
 
     def update(self):
         if self.player.player_num == 1:
