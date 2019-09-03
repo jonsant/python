@@ -68,7 +68,9 @@ def game():
 	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom)
 	wall2 = Wall(screen, settings, screen.get_rect().right - 150, screen.get_rect().bottom)
 	wall3 = Wall(screen, settings, screen.get_rect().width / 2 - 110, screen.get_rect().height / 2 - 80)
-	wall4 = Wall(screen, settings, screen.get_rect().width / 2 + 200, screen.get_rect().height / 2 + 180)
+	wall4 = Wall(screen, settings, screen.get_rect().width / 2 + 130, screen.get_rect().height / 2 + 180)
+	wall5 = Wall(screen, settings, screen.get_rect().left + 400, screen.get_rect().bottom - 100 )
+	wall6 = Wall(screen, settings, screen.get_rect().right - 350, screen.get_rect().top + 280 )
 	pl1_hq_door = HQ_door(settings, screen, player1, stats, screen.get_rect().left, wall.rect.top, wall)
 	pl2_hq_door = HQ_door(settings, screen, player2, stats, wall2.rect.right, wall2.rect.top, wall2)
 	hq_doors = [pl1_hq_door, pl2_hq_door]
@@ -76,6 +78,8 @@ def game():
 	walls.add(wall2)
 	walls.add(wall3)
 	walls.add(wall4)
+	walls.add(wall5)
+	walls.add(wall6)
 
 	items = [hearts, commies, planes, bombs]
 	
