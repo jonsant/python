@@ -1,2 +1,4 @@
 cx-freeze https://cx-freeze.readthedocs.io
 python setup.py build
+
+https://cx-freeze.readthedocs.io/en/latest/distutils.html
