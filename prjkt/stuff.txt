@@ -1,0 +1,2 @@
+cx-freeze https://cx-freeze.readthedocs.io
+python setup.py build
