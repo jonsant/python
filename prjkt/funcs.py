@@ -23,7 +23,7 @@ def play_sound(path):
 		_sound_library[path] = sound
 	sound.play()
 
-def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls, belongings):
+def check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls, belongings, bombs):
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			if settings.controller_used:
@@ -31,14 +31,14 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 			sys.exit(0)
 			
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls, belongings)
+			check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls, belongings, bombs)
 		
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs)
 			
 		elif event.type == pygame.MOUSEBUTTONDOWN:
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls, belongings)
+			check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs)
 		elif event.type == pygame.JOYAXISMOTION:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
 			if len(players) == 3:
@@ -127,7 +127,7 @@ def check_events(settings, screen, players, menu_buttons, stats, joysticks, bull
 					pause_and_start(stats)
 			else:
 				if event.button == settings.joystick_start:
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs)
 					stats.in_game = True
 		elif event.type == pygame.JOYBUTTONUP:
 			# If there are 3 players, set joystick to control player 3. If two players, control player 2
@@ -164,7 +164,7 @@ def save_controller_settings(settings):
 	except FileNotFoundError:
 		pass
 
-def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls, belongings):
+def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks, screen, menu_msgs, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs):
 	
 	for btn in menu_buttons:
 		btn_clicked = btn.rect.collidepoint(mouse_x, mouse_y)
@@ -174,7 +174,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 			if not stats.in_game:
 				if btn.button_type == "play":
 
-					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings)
+					initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs)
 					stats.in_game = True
 				elif btn.button_type == "settings":
 					if joysticks:
@@ -195,7 +195,7 @@ def check_menu_button(settings, mouse_x, mouse_y, menu_buttons, stats, joysticks
 				if btn.button_type == "quit":
 					stats.in_game = False
 					
-def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings):
+def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs):
 	pygame.mixer.music.load("song.mp3")
 	pygame.mixer.music.play(-1)
 
@@ -210,6 +210,11 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_
 
 	hearts.empty()
 	commies.empty()
+	
+	for b_group in pl_bombs:
+		b_group.empty()
+
+	bombs.empty()
 
 	for prop in belongings:
 		prop.init_prop()
@@ -253,7 +258,7 @@ def initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_
 	#print(players)
 
 		
-def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls, belongings):
+def check_keydown_events(event, settings, screen, players, bullets, stats, sb, hearts, commies, hq_doors, pl_bombs, walls, belongings, bombs):
 	
 	if event.key == pygame.K_RIGHT:
 		players[0].moving_right = True
@@ -273,7 +278,7 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 				fire(bullets[0], settings, screen, players[0], pl_bombs[0], sb)
 		else:
 			play_sound("button.wav")
-			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings)
+			initGame(settings, stats, screen, sb, players, bullets, hearts, commies, hq_doors, walls, belongings, pl_bombs, bombs)
 			stats.in_game = True
 	elif event.key == pygame.K_BACKSPACE:
 		if stats.in_game:
@@ -495,6 +500,7 @@ def update_bullets(bullets, screen, players, settings, stats, sb):
 		else:
 			continue
 	if len(players_alive) == 1:
+		
 		stats.someone_won = True
 		players_alive[0].is_alive = False
 		sb.prep_info_text("Player " + str(players_alive[0].player_num) + " won!")
@@ -556,6 +562,9 @@ def check_bullet_enemy_collisions(players_bullets, bullet_idx, screen, players, 
 							if not stats.current_commie == None and stats.current_commie == bullet.my_creator:
 								pygame.mixer.music.load("commie.mp3")
 								pygame.mixer.music.play(-1)
+							else:
+								pygame.mixer.music.load("victory.wav")
+								pygame.mixer.music.play()
 							play_sound("hit.wav")
 							stats.game_over = True
 							player.health = 0
@@ -809,20 +818,43 @@ def check_player_activated_bomb_collide(settings, players, pl_bombs, sb):
 			
 			
 def check_player_bomb_explosion_collide(settings, players, bomb_explos, sb, stats):
-	for player in players:
-		for expl_group in bomb_explos:
-			collisions = pygame.sprite.spritecollide(player, expl_group, False)
+	if not stats.game_over:
+		for player in players:
+			for expl_group in bomb_explos:
+				collisions = pygame.sprite.spritecollide(player, expl_group, False)
 
-			if collisions:
-				if player.health - settings.bomb_damage <= 0:
-					stats.game_over = True
-					player.health = 0
-					sb.prep_health_bars()
-					sb.prep_health_scores()					
-				else:
-					player.health -= settings.bomb_damage
-					sb.prep_health_bars()
-					sb.prep_health_scores()	
+				if collisions:
+					if player.health - settings.bomb_damage <= 0:
+						if not stats.current_commie == None and stats.current_commie == collisions[0].my_creator:
+							pygame.mixer.music.load("commie.mp3")
+							pygame.mixer.music.play()
+						else:
+							pygame.mixer.music.load("victory.wav")
+							pygame.mixer.music.play()
+						player.health = 0
+						sb.prep_health_bars()
+						sb.prep_health_scores()
+
+						# Find winner
+						players_alive = []
+						for player in players:
+							if player.health > 0:
+								players_alive.append(player)
+							else:
+								continue
+							if len(players_alive) == 1:
+								players_alive[0].is_alive = False
+								sb.prep_info_text("Player " + str(players_alive[0].player_num) + " won!")
+								print("winner: " + str(players_alive[0].player_num))
+
+						for bg in bomb_explos:
+							bg.empty()
+
+						stats.game_over = True
+					else:
+						player.health -= settings.bomb_damage
+						sb.prep_health_bars()
+						sb.prep_health_scores()	
 				
 def check_explosion_wall_collide(settings, stats, bomb_explos, walls):
 	for wall in walls:
@@ -848,8 +880,13 @@ def	check_enemy_property_collide(settings, stats, players, belongings, sb):
 			else:
 				collision = pygame.sprite.collide_rect(prop, player)
 
-				if collision:
-					play_sound("blip.wav")
+				if collision and not stats.game_over:
+					if not stats.current_commie == None and stats.current_commie == player:
+						pygame.mixer.music.load("commie.mp3")
+						pygame.mixer.music.play()
+					else:
+						pygame.mixer.music.load("victory.wav")
+						pygame.mixer.music.play()
 					stats.game_over = True
 					stats.someone_won = True
 					prop.taken = True

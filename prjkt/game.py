@@ -50,19 +50,23 @@ def game():
 	bullets3 = Group()
 
 	bullets = [bullets1, bullets2]
+	
+	# Bombs dropped by planes
+	bombs = Group()
 
+	# Bombs placed by players
 	pl1_bombs = Group()
 	pl2_bombs = Group()
-
 	pl_bombs = [pl1_bombs, pl2_bombs]
 
+	# Planes exploding
 	explos = []
 
+	# Bombs exploding
 	bomb_explos = []
 
 	hearts = Group()
 	commies = Group()
-	bombs = Group()
 	planes = Group()
 	walls = Group()
 	wall = Wall(screen, settings, screen.get_rect().left + 150, screen.get_rect().bottom)
@@ -107,7 +111,7 @@ def game():
 
 	while True:
 		
-		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls, belongings)
+		funcs.check_events(settings, screen, players, menu_buttons, stats, joysticks, bullets, menu_msgs, sb, hearts, commies, hq_doors, pl_bombs, dt, walls, belongings, bombs)
 
 		if stats.in_game:
 			if not stats.paused:
