@@ -352,26 +352,27 @@ def check_keyup_events(event, settings, screen, players, bullets, stats, sb, hea
 		pass
 
 def switch_player_weapon(player, sb):
-	if player.selected_weapon == player.weapons[-1]:
-		player.selected_weapon = player.weapons[0]
-	else:
-		try:
-			wpn_idx = player.weapons.index(player.selected_weapon)
-			player.selected_weapon = player.weapons[wpn_idx+1]
-		except:
+	if not player.arming_bomb:
+		if player.selected_weapon == player.weapons[-1]:
 			player.selected_weapon = player.weapons[0]
-		
-	sb.prep_ammo_info()
+		else:
+			try:
+				wpn_idx = player.weapons.index(player.selected_weapon)
+				player.selected_weapon = player.weapons[wpn_idx+1]
+			except:
+				player.selected_weapon = player.weapons[0]
 			
+		sb.prep_ammo_info()
+				
 
-	play_sound("robot.wav")
+		play_sound("robot.wav")
 
-	if player.selected_weapon == "missile":
-		player.aiming_up = True
-	else:
-		player.aiming_up = False
+		if player.selected_weapon == "missile":
+			player.aiming_up = True
+		else:
+			player.aiming_up = False
 
-	sb.prep_current_weapon()
+		sb.prep_current_weapon()
 
 def fire(bullet_group, settings, screen, player, bomb_group, sb):
 	if player.selected_weapon == "bullet" or player.selected_weapon == "missile":
