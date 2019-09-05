@@ -609,6 +609,29 @@ def check_player_collide(settings, players):
 				player.moving_right = False
 				player.centerx -= 10
 				player.centery += 10
+				player.moving_up = True
+				player.moving_right = True
+			elif player.moving_up and player.moving_left:
+				player.moving_up = False
+				player.moving_left = False
+				player.centerx += 10
+				player.centery += 10
+				player.moving_up = True
+				player.moving_left = True
+			elif player.moving_down and player.moving_right:
+				player.moving_down = False
+				player.moving_right = False
+				player.centerx -= 10
+				player.centery -= 10
+				player.moving_down = True
+				player.moving_right = True
+			elif player.moving_down and player.moving_left:
+				player.moving_down = False
+				player.moving_left = False
+				player.centerx += 10
+				player.centery -= 10
+				player.moving_down = True
+				player.moving_left = True
 			elif player.moving_right:
 				player.moving_right = False
 				player.centerx -= 10
@@ -619,11 +642,11 @@ def check_player_collide(settings, players):
 				player.moving_left = True
 			elif player.moving_up:
 				player.moving_up = False
-				player.centerx += 10
+				player.centery += 10
 				player.moving_up = True
 			elif player.moving_down:
 				player.moving_down = False
-				player.centerx -= 10
+				player.centery -= 10
 				player.moving_down = True
 
 def check_player_door_collide(settings, stats, players, hq_doors):
