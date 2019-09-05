@@ -766,6 +766,21 @@ def check_player_wall_collide(settings, screen, players, walls):
 					player.moving_right = False
 					player.centerx -= 10
 					player.centery += 10
+				elif player.moving_up and player.moving_left:
+					player.moving_up = False
+					player.moving_left = False
+					player.centerx += 10
+					player.centery += 10
+				elif player.moving_down and player.moving_right:
+					player.moving_down = False
+					player.moving_right = False
+					player.centerx -= 10
+					player.centery -= 10
+				elif player.moving_down and player.moving_left:
+					player.moving_down = False
+					player.moving_left = False
+					player.centerx += 10
+					player.centery -= 10
 				elif player.moving_right:
 					player.moving_right = False
 					player.centerx -= 10
@@ -776,11 +791,11 @@ def check_player_wall_collide(settings, screen, players, walls):
 					player.moving_left = True
 				elif player.moving_up:
 					player.moving_up = False
-					player.centerx += 10
+					player.centery += 10
 					player.moving_up = True
 				elif player.moving_down:
 					player.moving_down = False
-					player.centerx -= 10
+					player.centery -= 10
 					player.moving_down = True
 			else:
 				#player.speed = 5
