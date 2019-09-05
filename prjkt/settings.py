@@ -44,7 +44,7 @@ class Settings():
 		self.plane_health = 1
 
 		# Bomb:
-		self.arming_time = 3
+		self.arming_time = 2
 		self.bomb_time_to_explode = 3
 		self.bomb_damage = 3
 
