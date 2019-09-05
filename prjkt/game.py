@@ -64,7 +64,7 @@ def game():
 
 	# Bombs exploding
 	bomb_explos = []
-
+	
 	hearts = Group()
 	commies = Group()
 	planes = Group()
