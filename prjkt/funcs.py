@@ -297,6 +297,12 @@ def check_keydown_events(event, settings, screen, players, bullets, stats, sb, h
 	elif event.key == pygame.K_s:
 		players[1].moving_down = True
 		players[1].direction = "down"
+	elif event.key == pygame.K_f:
+		settings.fullscreen = not settings.fullscreen
+		if settings.fullscreen:
+			pygame.display.set_mode((0,0),pygame.FULLSCREEN)
+		else:
+			pygame.display.set_mode((settings.screen_width, settings.screen_height))
 	elif event.key == pygame.K_v:
 		if stats.in_game:
 			if not stats.paused and not stats.someone_won:

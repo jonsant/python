@@ -12,6 +12,7 @@ class Settings():
 		self.screen_width = 1280
 		self.screen_height = 720
 		self.bg_color = (0,0,0)
+		self.fullscreen = False
 		
 		self.in_game_bg = pygame.image.load(funcs.find_data_file("bg.jpg"))
 		self.menu_bg = pygame.image.load(funcs.find_data_file("menu_bg.png"))
